@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import APIRouter
+from .goals import goals_router
 
 router = APIRouter()
 
@@ -6,4 +7,5 @@ router = APIRouter()
 async def root():
     return {"message": "Welcome to ByteGoals"}
 
-# router.include_router(
+router.include_router(goals_router)
+
