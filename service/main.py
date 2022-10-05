@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from api import router
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to ByteGoals"}
+app = FastAPI()
+app.include_router(router)
+
