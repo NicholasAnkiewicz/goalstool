@@ -1,5 +1,5 @@
 # Backend
-Data is served over [FastAPI](https://fastapi.tiangolo.com/), an ASGI framework for fast REST libraries in Python.
+Data is served over [FastAPI](https://fastapi.tiangolo.com/), an ASGI framework for fast REST APIs in Python.
 
 ## Installation
 We're currently using `requirements.txt` for saving and locking our dependencies.
