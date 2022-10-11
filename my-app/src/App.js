@@ -1,64 +1,168 @@
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import headshot from './filler_headshot.jpg';
+import logo from './ukglogo.jpg';
+import { Button } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import NavDropdown from 'react-bootstrap/NavDropdown';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const columns = [
-  { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'name', headerName: 'Name', width: 200 },
-  { field: 'description', headerName: 'Description', width: 130 },
-  {
-    field: 'created',
+{ field: 'id', 
+  headerName: 'ID', 
+  width: 100,
+  description: "The goal's unique 'id'entifier, or ID"
+},
+{ field: 'name', 
+  headerName: 'Name', 
+  width: 300,
+  description: "What the goal is!"
+},
+{ field: 'description', 
+   headerName: 'Description', 
+   width: 400,
+   description: "More information about what the goal entails"
+   
+  },
+
+{
+  field: 'type',
+  headerName: 'Type',
+  width: 200,
+  description: 'What type of goal this is'
+},
+
+{
+  field: 'created',
+    description: 'The date of creation for the goal',
     headerName: 'Creation Date',
-    type: 'date',
-    width: 90,
+      type: 'date',
+        width: 125,
   },
 
-  { field: 'daysToCompletion',
-    headerName: 'Days To Completion',
-    type: 'date',
-    width: 90,
+{
+  field: 'completionDate',
+    description: "The predicted completion date for a goal",
+    headerName: 'Completion Date',
+      type: 'date',
+        width: 125,
   },
 
-  {
-    field: 'expiration',
-    headerName: 'Due Date',
-    description: 'This column has a value getter and is not sortable.',
-    sortable: true,
-    width: 160,
-    valueGetter: (params) =>
-      `${params.row.description || ''} ${params.row.name || ''}`,
+{
+  field: 'editableField',
+    description: "A placeholder in case we want this functionality",
+    headerName: 'Editable Field',
+        sortable: false,
+          width: 350,
+            editable: true,
   },
+
+{
+  field: "moreInfo",
+  headerName: "More Info",
+  description: 'Click for Full Goal Information!',
+  sortable: false,
+  width: 125,
+  renderCell: (params) => {
+    const onClick = (e) => {
+      e.stopPropagation(); 
+      const api = params.api;
+      const thisRow = {};
+      api
+        .getAllColumns()
+        .filter((c) => c.field !== "__check__" && !!c)
+        .forEach(
+          (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
+        );
+
+      return alert(JSON.stringify(thisRow, null, 4));
+    };
+    return <Button onClick={onClick}>View</Button>;
+  }
+},
+
 ];
+
 
 const rows = [
-  { id: 1, name: 'Purchase New Coffee Machine', 
-    description: 'Jon says Keurig is preferred!', 
-    created: 35 },
-  { id: 2, name: 'Set Up New Laptops', description: 'Cersei', age: 42 },
-  { id: 3, name: 'Lannister', description: 'Jaime', age: 45 },
-  { id: 4, name: 'Stark', description: 'Arya', age: 16 },
-  { id: 5, name: 'Targaryen', description: 'Daenerys', age: null },
- 
+  {
+    id: 298, name: 'Purchase New Coffee Machine',
+    description: 'Jon says Keurig is preferred!',
+    created: "9/26/2021", completionDate: "10/27/2021",
+    editableField: "this field can be editedd (try fixing the typo)",
+  },
+  {
+    id: 62, name: 'Set Up New Laptops',
+    description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
+    created: "11/2/21", completionDate: "11/11/21",
+    editableField: "this one too!",
+  },
+  { id: 3876, name: 'Create Killer Robots', 
+    description: 'Pretty self explanatory, really.',
+    created: "2/3/1989", completionDate: "1/1/2040",
+    editableField: "even the one underneath, with no text!",
+  },
+  { id: 3877, name: 'Test Employee Dashboard Frontend', 
+    description: 'Try to break inputs, look for undefined behavior.', 
+    created: "10/11/2022", completionDate: "10/13/2022",
+  },
+  { id: 5, name: 'Spend More Time Outside', 
+    description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
+    created: "4/12/2020", completionDate: "5/16/2023"
+
+  },
+
 ];
+
+
+      
 
 export default function DataTable() {
   return (
-    <div>
-      <p> Employee Dashboard
-        <div>
-          <img src={headshot} width="100" height="100" alt="Employee Headshot" />
-        </div>
+
+    
+<div>
+
+
+<Navbar bg="light" expand="lg">
+      <Container>
+        <Navbar.Brand href="#home">
+        <img src={logo} width="50" height="50" alt="Employee logo" />
+          Employee Dashboard</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link href="#home">Home</Nav.Link>
+            <Nav.Link href="#link">Manager View</Nav.Link>
+            <NavDropdown title="Dropdown" id="basic-nav-dropdown">
+              <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
+              <NavDropdown.Item href="#action/3.2">
+                Another action
+              </NavDropdown.Item>
+              <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action/3.4">
+                Separated link
+              </NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+
+
         <div style={{ height: 600, width: '100%' }}>
           <DataGrid
             rows={rows}
             columns={columns}
+            experimentalFeatures={{ newEditingApi: true }}
             pageSize={10}
             rowsPerPageOptions={[6]}
             checkboxSelection
           />
-        </div>
-      </p>
-    </div>
+        </div> 
+      </div>
   );
 }
 
