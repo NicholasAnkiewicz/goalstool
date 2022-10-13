@@ -1,0 +1,16 @@
+.navbar-light {
+    color: white;
+}
+
+#basic-nav-dropdown {
+    color: white;
+}
+
+.MuiDataGrid-columnHeaderTitle, .MuiDataGrid-cellContent {
+    font-size: large;
+}
+
+p.MuiTablePagination-displayedRows{
+    font-size: large;
+    color: gray;
+}

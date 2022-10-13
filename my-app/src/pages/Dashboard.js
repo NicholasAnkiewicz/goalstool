@@ -7,6 +7,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import logo from './ukglogo.jpg';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Dashboard.css';
 
 const columns = [
 
@@ -40,7 +41,7 @@ const columns = [
     description: 'The date of creation for the goal',
     headerName: 'Creation Date',
     type: 'date',
-    width: 125,
+    width: 130,
   },
 
   {
@@ -48,7 +49,7 @@ const columns = [
     description: "The predicted completion date for a goal",
     headerName: 'Completion Date',
     type: 'date',
-    width: 125,
+    width: 155,
   },
 
   {
@@ -129,17 +130,18 @@ export default function dashboard() {
 
     <div>
 
-      <Navbar bg="light" expand="lg">
+      <Navbar className="fs-4" expand="lg" style={{backgroundColor: '#005151'}}>
         <Container>
-          <Navbar.Brand href="#home">
-            <img src={logo} width="50" height="50" alt="Employee logo" />
+
+          <Navbar.Brand className="fw-bold fs-3 navbar-light" href="#home">
+            <img className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Employee Dashboard
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="#home">Home</Nav.Link>
-              <Nav.Link href="#link">Manager View</Nav.Link>
+              <Nav.Link className="navbar-light" href="#home">Home</Nav.Link>
+              <Nav.Link className="navbar-light" href="#link">Manager View</Nav.Link>
               <NavDropdown title="Dropdown" id="basic-nav-dropdown">
                 <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
                 <NavDropdown.Item href="#action/3.2">
@@ -167,7 +169,7 @@ export default function dashboard() {
         />
       </div> 
     </div>
-    
+
   );
 }
 
