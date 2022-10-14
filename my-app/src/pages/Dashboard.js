@@ -1,43 +1,47 @@
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button } from 'react-bootstrap';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Dashboard.css';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import logo from './ukglogo.jpg';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './Dashboard.css';
+import { MDBSwitch } from 'mdb-react-ui-kit';
+import ManagerDashboard from "./ManagerDashboard.js"
+import { CSSTransition } from 'react-transition-group';
+
 
 const columns = [
 
   { field: 'id', 
     headerName: 'ID', 
-    width: 100,
+    width: 80,
     description: "The goal's unique 'id'entifier, or ID"
   },
 
   { field: 'name', 
     headerName: 'Name', 
-    width: 300,
+    flex: 1,
     description: "What the goal is!"
   },
 
   { field: 'description', 
     headerName: 'Description', 
-    width: 400,
+    flex: 1,
     description: "More information about what the goal entails"
   },
 
   {
     field: 'type',
     headerName: 'Type',
-    width: 200,
+    width: 110,
     description: 'What type of goal this is'
   },
 
   {
-    field: 'created',
+    field: 'createdDate',
     description: 'The date of creation for the goal',
     headerName: 'Creation Date',
     type: 'date',
@@ -53,12 +57,11 @@ const columns = [
   },
 
   {
-    field: 'editableField',
-    description: "A placeholder in case we want this functionality",
-    headerName: 'Editable Field',
-    sortable: false,
-    width: 350,
-    editable: true,
+    field: 'status',
+    description: 'Complete/In Progress/Initialized/Abandoned',
+    headerName: 'Status',
+    type: 'enum',
+    width: '90',
   },
 
   {
@@ -66,7 +69,7 @@ const columns = [
     headerName: "More Info",
     description: 'Click for Full Goal Information!',
     sortable: false,
-    width: 125,
+    width: 90,
     renderCell: (params) => {
       const onClick = (e) => {
         e.stopPropagation(); 
@@ -92,82 +95,107 @@ const rows = [
   {
     id: 298, name: 'Purchase New Coffee Machine',
     description: 'Jon says Keurig is preferred!',
-    created: "9/26/2021", completionDate: "10/27/2021",
+    createdDate: "9/26/2021", completionDate: "10/27/2021",
     editableField: "this field can be editedd (try fixing the typo)",
+    type: "Purchase", status: "Go"
   },
 
   {
     id: 62, name: 'Set Up New Laptops',
     description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
-    created: "11/2/21", completionDate: "11/11/21",
+    createdDate: "11/2/21", completionDate: "11/11/21",
     editableField: "this one too!",
+    type: "IT", status: "Stopped"
   },
 
   { id: 3876, name: 'Create Killer Robots', 
     description: 'Pretty self explanatory, really.',
-    created: "2/3/1989", completionDate: "1/1/2040",
+    createdDate: "2/3/1989", completionDate: "1/1/2040",
     editableField: "even the one underneath, with no text!",
+    type: "Evil", status: "Done"
   },
 
   { id: 3877, name: 'Test Employee Dashboard Frontend', 
     description: 'Try to break inputs, look for undefined behavior.', 
-    created: "10/11/2022", completionDate: "10/13/2022",
+    createdDate: "10/11/2022", completionDate: "10/13/2022",
+    type: "Dev", status: "Go"
   },
 
   { id: 5, name: 'Spend More Time Outside', 
     description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
-    created: "4/12/2020", completionDate: "5/16/2023"
+    createdDate: "4/12/2020", completionDate: "5/16/2023",
+    type: "Personal", status: "Go"
 
   },
 
 ];
 
 
-      
-
-export default function dashboard() {
+function employeeDashboard() {
   return (
+    <div style={{ height: 450, width: '100%' }}>
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      experimentalFeatures={{ newEditingApi: true }}
+      pageSize={10}
+      rowsPerPageOptions={[6]}
+      checkboxSelection
+    />
+      <Button variant="success" onClick={()=>1}>New</Button>
 
+  </div>
+  )
+}
+
+const duration = 300;
+
+const defaultStyle = {
+  transition: 'opacity ${duration}ms ease-in-out',
+  opacity: 0.01,
+}
+
+const transitionStyles = {
+  entering: {opacity: 1},
+  entered: {opacity: 1},
+  exiting: {opacity: 0},
+  exited: {opacity: 0},
+}
+
+
+export default function Dashboard() {
+  const [inProp, setInProp] = React.useState(false);
+  const nodeRef = React.useRef(null);
+  return (
+    
     <div>
-
       <Navbar className="fs-4" expand="lg" style={{backgroundColor: '#005151'}}>
         <Container>
 
           <Navbar.Brand className="fw-bold fs-3 navbar-light" href="#home">
             <img className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
-            Employee Dashboard
+            Dashboard
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link className="navbar-light" href="#home">Home</Nav.Link>
-              <Nav.Link className="navbar-light" href="#link">Manager View</Nav.Link>
-              <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">
-                  Another action
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">
-                  Separated link
-                </NavDropdown.Item>
-              </NavDropdown>
+              <MDBSwitch onClick={() => setInProp(!inProp)}
+              id='flexSwitchCheckDefault' label='Manager View' />
+              
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-
-      <div style={{ height: 600, width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          experimentalFeatures={{ newEditingApi: true }}
-          pageSize={10}
-          rowsPerPageOptions={[6]}
-          checkboxSelection
-        />
-      </div> 
+      {employeeDashboard()}
+      <CSSTransition nodeRef={nodeRef} in={inProp} 
+      timeout={200} classNames="my-node" unmountOnExit>
+        <div ref={nodeRef}>
+          <br/>
+          <br/>
+          {ManagerDashboard()}
+        </div>
+      </CSSTransition>
+      
     </div>
 
   );
