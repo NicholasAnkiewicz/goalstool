@@ -45,6 +45,7 @@ const columns = [
     description: 'The date of creation for the goal',
     headerName: 'Creation Date',
     type: 'date',
+    valueGetter: ({ value }) => value && new Date(value),
     width: 130,
   },
 
@@ -53,6 +54,7 @@ const columns = [
     description: "The predicted completion date for a goal",
     headerName: 'Completion Date',
     type: 'date',
+    valueGetter: ({ value }) => value && new Date(value),
     width: 155,
   },
 
