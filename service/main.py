@@ -18,29 +18,48 @@ class MyEnum(enum.Enum):
 # connection.execute(t.insert(), {"value": MyEnum.two})
 # assert connection.scalar(t.select()) is MyEnum.two
 
-class SomeClass(Base):
-    __tablename__ = 'some_table'
-    ## missing columms: manager_id, goals, assignee_id
+class Employee(Base):
+    __tablename__ = 'Employee'
     id = Column(Integer, primary_key=True)
     first_name = Column(String(50))
     last_name = Column(String(50))
-    employee_id = Column(String(50))
+    employee_id = Column(Integer, primary_key=True)
     email = Column(String(50))
     company_id = Column(String(50))
     company_name = Column(String(50))
     position_title = Column(String(50))
-    start_date =  Column(DateTime)
     current = Column(Boolean)
-    title =  Column(String(50))
-    description = Column(String(50))
-    assignee_id = Column(String(50))
+    manager_id = Column(Integer, primary_key=True)
+    is_manager = Column(Boolean)
+    password = Column(String(50))
+
+class Goals(Base):
+    __tablename__ = 'Goals'
+    goal_id = Column(Integer, primary_key=True)
+    title = Column(String(50))
+    add_description = Column(String(255))
+    assigned_id = Column(Integer, primary_key=True)
+    manager_id = Column(Integer, primary_key=True)
+    comment_id  = Column(Integer, primary_key=True)
     status = Column(Enum(MyEnum))
-    
+    start_date = Column(DateTime)    
+    end_date = Column(DateTime)
+
+class Comments(Base):
+    __tablename__ = 'Comments'
+    comment_id = Column(Integer, primary_key=True)
+    description = Column(String(255))
+    goal_id = Column(Integer, primary_key=True)
+    employee_id = Column(Integer, primary_key=True)
+    manager_id = Column(Integer, primary_key=True)
+
 # access the mapped Table
-print(SomeClass.__table__)
+print(Employee.__table__)
+print(Goals.__table__)
+print(Comments.__table__)
 
 # access the Mapper
-print(SomeClass.__mapper__)
-print(SomeClass.status)
-SomeClass.status = MyEnum.to_do  
-print(SomeClass.status)
+print(Goals.__mapper__)
+print(Goals.status)
+Goals.status = MyEnum.to_do  
+print(Goals.status)
