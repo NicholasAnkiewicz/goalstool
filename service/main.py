@@ -44,6 +44,7 @@ class Goals(Base):
     status = Column(Enum(MyEnum))
     start_date = Column(DateTime)    
     end_date = Column(DateTime)
+    type = Column(String(50))
 
 class Comments(Base):
     __tablename__ = 'Comments'
