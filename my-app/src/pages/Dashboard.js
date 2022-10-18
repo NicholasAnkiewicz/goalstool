@@ -11,6 +11,7 @@ import logo from './ukglogo.jpg';
 import { MDBSwitch } from 'mdb-react-ui-kit';
 import ManagerDashboard from "./ManagerDashboard.js"
 import { CSSTransition } from 'react-transition-group';
+import { useNavigate } from "react-router-dom";
 
 
 const columns = [
@@ -68,7 +69,7 @@ const columns = [
 
   {
     field: "moreInfo",
-    headerName: "More Info",
+    headerName: "",
     description: 'Click for Full Goal Information!',
     sortable: false,
     width: 90,
@@ -133,9 +134,15 @@ const rows = [
 ];
 
 
-function employeeDashboard() {
+function EmployeeDashboard() {
+  const navigate = useNavigate();
   return (
     <div style={{ height: 450, width: '100%' }}>
+      <h2>Eclair's Goals</h2>
+      <div className="p-1 d-flex justify-content-end">
+        <Button className="m-1" variant="success" onClick={()=>1}>New Goal</Button>
+        <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
+      </div>
     <DataGrid
       rows={rows}
       columns={columns}
@@ -144,7 +151,6 @@ function employeeDashboard() {
       rowsPerPageOptions={[6]}
       checkboxSelection
     />
-      <Button variant="success" onClick={()=>1}>New</Button>
 
   </div>
   )
@@ -188,10 +194,12 @@ export default function Dashboard() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      {employeeDashboard()}
+      {EmployeeDashboard()}
       <CSSTransition nodeRef={nodeRef} in={inProp} 
       timeout={200} classNames="my-node" unmountOnExit>
         <div ref={nodeRef}>
+          <br/>
+          <br/>
           <br/>
           <br/>
           {ManagerDashboard()}
