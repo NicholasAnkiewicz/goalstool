@@ -70,7 +70,7 @@ const columns = [
 
   {
     field: "moreInfo",
-    headerName: "More Info",
+    headerName: "",
     description: 'Click for Full Goal Information!',
     sortable: false,
     width: 90,
@@ -159,6 +159,7 @@ function EmployeeDashboard() {
       rowsPerPageOptions={[6]}
       checkboxSelection
     />
+    
   </div>
   )
 }
@@ -205,6 +206,8 @@ export default function Dashboard() {
       <CSSTransition nodeRef={nodeRef} in={inProp} 
       timeout={200} classNames="my-node" unmountOnExit>
         <div ref={nodeRef}>
+          <br/>
+          <br/>
           <br/>
           <br/>
           {ManagerDashboard()}
