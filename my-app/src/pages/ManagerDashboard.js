@@ -15,6 +15,8 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useNavigate } from "react-router-dom";
 import Pageview from '@mui/icons-material/Pageview';
+import Image from 'react-bootstrap/Image';
+import icon from './icon2.png';
 
 
 
@@ -132,10 +134,17 @@ const rows = [
 
 export default function CollapsibleTable() {
   return (
-    <div style={{width:"80%"}}>
+    <div style={{width:"100%"}}>
+    <br/>
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
         <TableHead>
+          <TableRow>
+            <TableCell className="fw-bold fs-2" style={{color: '#005151'}} colSpan={2}>
+              <Image height="50" src={icon}/>
+              Employee
+            </TableCell>
+            </TableRow>
           <TableRow>
             <TableCell />
             <TableCell style={{width: '200px'}}>Name</TableCell>
