@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button } from 'react-bootstrap';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
 import Container from 'react-bootstrap/Container';
@@ -11,6 +10,9 @@ import logo from './ukglogo.jpg';
 import { MDBSwitch } from 'mdb-react-ui-kit';
 import ManagerDashboard from "./ManagerDashboard.js"
 import { CSSTransition } from 'react-transition-group';
+import { useNavigate } from "react-router-dom";
+import Image from 'react-bootstrap/Image';
+import icon from './icon1.png';
 
 
 const columns = [
@@ -133,9 +135,22 @@ const rows = [
 ];
 
 
-function employeeDashboard() {
+function EmployeeDashboard() {
+  const navigate = useNavigate();
+
   return (
     <div style={{ height: 450, width: '100%' }}>
+
+      <div className="p-1 d-flex justify-content-between align-items-center">
+        <div className="fw-bold fs-2" style={{color: '#005151'}}  >
+        <Image height="50" src={icon}/>
+          Goal
+        </div>
+        <div>
+          <Button className="m-1" variant="success" onClick={()=>1}>New Goal</Button>
+          <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
+        </div>
+      </div>
     <DataGrid
       rows={rows}
       columns={columns}
@@ -144,8 +159,6 @@ function employeeDashboard() {
       rowsPerPageOptions={[6]}
       checkboxSelection
     />
-      <Button variant="success" onClick={()=>1}>New</Button>
-
   </div>
   )
 }
@@ -175,7 +188,7 @@ export default function Dashboard() {
         <Container>
 
           <Navbar.Brand className="fw-bold fs-3 navbar-light" href="#home">
-            <img className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
+            <Image className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Dashboard
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -188,7 +201,7 @@ export default function Dashboard() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      {employeeDashboard()}
+      {EmployeeDashboard()}
       <CSSTransition nodeRef={nodeRef} in={inProp} 
       timeout={200} classNames="my-node" unmountOnExit>
         <div ref={nodeRef}>
