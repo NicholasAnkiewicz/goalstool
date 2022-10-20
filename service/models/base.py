@@ -1,10 +1,8 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
 
 #TODO: move to api 
-engine = create_engine('sqlite:///:memory:', echo=True)
-
-Base.metadata.create_all(engine)
+engine = create_engine('sqlite:///app.db?check_same_thread=False', echo=True)
