@@ -1,8 +1,10 @@
 import { useState } from "react";
 import BasicForm from "../components/BasicForm";
 import "./NewGoal.css";
+
 function NewGoal() {
   const [view, setView] = useState("basic");
+
   return (
     <div className="GoalMain" >
       <div className="heading">
@@ -15,4 +17,5 @@ function NewGoal() {
     </div>
   );
 }
+
 export default NewGoal;

@@ -1,4 +1,6 @@
 import {useFormik} from "formik";
+import { useNavigate } from "react-router-dom";
+
 const BasicForm = () => {
     const {
       values,
@@ -11,6 +13,7 @@ const BasicForm = () => {
         Deadline: "",
       },
     });
+    const navigate = useNavigate();
   
     return (
       <form  autoComplete="off">
@@ -41,12 +44,14 @@ const BasicForm = () => {
           onChange={handleChange}
           onBlur={handleBlur}
         />
-
-    
-        <button type="submit">
+        <button className="submitButton" type="submit">
           Submit
+        </button>
+        <button className="cancelButton" type="submit" variant="success" onClick={()=>navigate('/Dashboard')}>
+          Cancel
         </button>
       </form>
     );
   };
+
   export default BasicForm;

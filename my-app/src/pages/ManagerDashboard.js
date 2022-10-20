@@ -19,8 +19,6 @@ import Image from 'react-bootstrap/Image';
 import icon from './icon2.png';
 
 
-
-
 function createData(name, id, title) {
   return {
     name,

@@ -147,7 +147,7 @@ function EmployeeDashboard() {
           Goal
         </div>
         <div>
-          <Button className="m-1" variant="success" onClick={()=>1}>New Goal</Button>
+          <Button className="m-1" variant="success" onClick={()=>navigate('/NewGoal')}>New Goal</Button>
           <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
         </div>
       </div>
