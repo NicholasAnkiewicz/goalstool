@@ -3,16 +3,15 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import logo from './ukglogo.jpg';
-import { MDBSwitch } from 'mdb-react-ui-kit';
 import ManagerDashboard from "./ManagerDashboard.js"
-import { CSSTransition } from 'react-transition-group';
 import { useNavigate } from "react-router-dom";
 import Image from 'react-bootstrap/Image';
 import icon from './icon1.png';
+import GoalCard from './components/GoalCard'
+import ReviewsIcon from '@mui/icons-material/Reviews';
+import IconButton from '@mui/material/IconButton';
 
 
 const columns = [
@@ -43,7 +42,7 @@ const columns = [
   },
 
   {
-    field: 'createdDate',
+    field: 'createdate',
     description: 'The date of creation for the goal',
     headerName: 'Creation Date',
     type: 'date',
@@ -52,7 +51,7 @@ const columns = [
   },
 
   {
-    field: 'completionDate',
+    field: 'completedate',
     description: "The predicted completion date for a goal",
     headerName: 'Completion Date',
     type: 'date',
@@ -70,10 +69,10 @@ const columns = [
 
   {
     field: "moreInfo",
-    headerName: "",
+    headerName: "Comments",
     description: 'Click for Full Goal Information!',
     sortable: false,
-    width: 90,
+    width: 100,
     renderCell: (params) => {
       const onClick = (e) => {
         e.stopPropagation(); 
@@ -85,9 +84,12 @@ const columns = [
           .forEach(
             (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
           );
-        return alert(JSON.stringify(thisRow, null, 4));
+        return 1;
+        //return alert(JSON.stringify(thisRow, null, 4));
       };
-      return <Button onClick={onClick}>View</Button>;
+      return  <div><IconButton size="small" onClick={onClick}>
+      {<ReviewsIcon color="primary"/>}
+    </IconButton></div>;
     }
   }
 
@@ -99,7 +101,7 @@ const rows = [
   {
     id: 298, name: 'Purchase New Coffee Machine',
     description: 'Jon says Keurig is preferred!',
-    createdDate: "9/26/2021", completionDate: "10/27/2021",
+    createdate: "9/26/2021", completedate: "10/27/2021",
     editableField: "this field can be editedd (try fixing the typo)",
     type: "Purchase", status: "Go"
   },
@@ -107,27 +109,27 @@ const rows = [
   {
     id: 62, name: 'Set Up New Laptops',
     description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
-    createdDate: "11/2/21", completionDate: "11/11/21",
+    createdate: "11/2/21", completedate: "11/11/21",
     editableField: "this one too!",
     type: "IT", status: "Stopped"
   },
 
   { id: 3876, name: 'Create Killer Robots', 
     description: 'Pretty self explanatory, really.',
-    createdDate: "2/3/1989", completionDate: "1/1/2040",
+    createdate: "2/3/1989", completedate: "1/1/2040",
     editableField: "even the one underneath, with no text!",
     type: "Evil", status: "Done"
   },
 
   { id: 3877, name: 'Test Employee Dashboard Frontend', 
     description: 'Try to break inputs, look for undefined behavior.', 
-    createdDate: "10/11/2022", completionDate: "10/13/2022",
+    createdate: "10/11/2022", completedate: "10/13/2022",
     type: "Dev", status: "Go"
   },
 
   { id: 5, name: 'Spend More Time Outside', 
     description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
-    createdDate: "4/12/2020", completionDate: "5/16/2023",
+    createdate: "4/12/2020", completedate: "5/16/2023",
     type: "Personal", status: "Go"
 
   },
@@ -135,7 +137,12 @@ const rows = [
 ];
 
 
-function EmployeeDashboard() {
+let loggedInUser = {
+  firstname: "Jim",
+  lastname: "Johnson"
+}
+
+function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
   const navigate = useNavigate();
 
   return (
@@ -144,76 +151,64 @@ function EmployeeDashboard() {
       <div className="p-1 d-flex justify-content-between align-items-center">
         <div className="fw-bold fs-2" style={{color: '#005151'}}  >
         <Image height="50" src={icon}/>
-          Goal
+          {curEmployee == loggedInUser ? "Your" : curEmployee.firstname + " " +curEmployee.lastname + "'s"} Goals
         </div>
         <div>
           <Button className="m-1" variant="success" onClick={()=>navigate('/NewGoal')}>New Goal</Button>
-          <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
         </div>
       </div>
     <DataGrid
-      rows={rows}
+      rows={curRows}
       columns={columns}
-      experimentalFeatures={{ newEditingApi: true }}
+      onRowClick={
+        (params, event, details) => {
+          changeSelectedRow(params.row);
+      }}
+      
       pageSize={10}
       rowsPerPageOptions={[6]}
-      checkboxSelection
+      checkboxSelection={false}
     />
-    
+    {GoalCard(selectedRow,curEmployee)}
+
   </div>
   )
 }
 
-const duration = 300;
-
-const defaultStyle = {
-  transition: 'opacity ${duration}ms ease-in-out',
-  opacity: 0.01,
-}
-
-const transitionStyles = {
-  entering: {opacity: 1},
-  entered: {opacity: 1},
-  exiting: {opacity: 0},
-  exited: {opacity: 0},
-}
-
-
 export default function Dashboard() {
-  const [inProp, setInProp] = React.useState(false);
+  const [activeGoal, setActiveGoal] = React.useState(rows[0]);
+  const [curEmployee, setCurUser] = React.useState(loggedInUser);
+  const [curRows, setCurRows] = React.useState(rows);
   const nodeRef = React.useRef(null);
-  return (
-    
-    <div>
-      <Navbar className="fs-4" expand="lg" style={{backgroundColor: '#005151'}}>
-        <Container>
+  const navigate = useNavigate();
 
-          <Navbar.Brand className="fw-bold fs-3 navbar-light" href="#home">
+  return (
+    <div>
+      <Navbar style={{backgroundColor: '#005151'}}>
+        
+          <Navbar.Brand style={{paddingLeft: '6%'}}className="fw-bold fs-3 navbar-light" href="#home">
             <Image className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Dashboard
           </Navbar.Brand>
+          <Button variant="light" onClick={() => {setCurUser(loggedInUser); setCurRows(rows) }}>Your Goals</Button>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <MDBSwitch onClick={() => setInProp(!inProp)}
-              id='flexSwitchCheckDefault' label='Manager View' />
-              
-            </Nav>
+          <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
+            <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
+              Signed in as <Button className="btn-lg">{loggedInUser.firstname}</Button>
+            <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
+
+            </Navbar.Text>
           </Navbar.Collapse>
-        </Container>
       </Navbar>
-      {EmployeeDashboard()}
-      <CSSTransition nodeRef={nodeRef} in={inProp} 
-      timeout={200} classNames="my-node" unmountOnExit>
-        <div ref={nodeRef}>
+      <div>
+        {EmployeeDashboard(activeGoal,setActiveGoal,curEmployee,curRows)}
+        <div ref={nodeRef} style={{float: 'right', width: "80%"}}>
           <br/>
           <br/>
-          <br/>
-          <br/>
-          {ManagerDashboard()}
+          {ManagerDashboard(setCurUser,setCurRows)}
         </div>
-      </CSSTransition>
-      
+
+      </div>
     </div>
 
   );

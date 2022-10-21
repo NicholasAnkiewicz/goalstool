@@ -13,29 +13,35 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { useNavigate } from "react-router-dom";
-import Pageview from '@mui/icons-material/Pageview';
 import Image from 'react-bootstrap/Image';
 import icon from './icon2.png';
+import ReviewsIcon from '@mui/icons-material/Reviews';
+import PersonIcon from '@mui/icons-material/Person';
 
-
-function createData(name, id, title) {
+function createData(firstname, lastname, id, title) {
   return {
-    name,
+    firstname,
+    lastname,
     id,
     title,
     goals: [
       {
+        id: 235,
         createdate: '2020-01-05',
-        goalname: 'Test Employee Dashboard Frontend',
+        completedate: '2021-01-05',
+        name: 'Test Employee Dashboard Frontend',
         description: "Try to break inputs, look for undefined behavior.",
-        type: "Dev"
+        type: "Dev",
+        status: "Go",
       },
       {
+        id: 292,
         createdate: '2020-01-02',
-        goalname: 'Spend More Time Outside',
-        description: "Vitamin D, fresh air, exercise! Before it gets cold.",
-        type: "Personal"
+        completedate: '2021-01-02',
+        name: 'Spend More Time Outside',
+        description: "Vitamin D, fresh air, exercise! Before it gets cold. ",
+        type: "Personal",
+        status: "Complete",
       },
     ],
   };
@@ -43,8 +49,9 @@ function createData(name, id, title) {
 
 function Row(props) {
   const { row } = props;
+  const { setCurUser } = props;
+  const { setCurRows } = props;
   const [open, setOpen] = React.useState(false);
-  const navigate = useNavigate();
 
 
   return (
@@ -61,7 +68,14 @@ function Row(props) {
           
         </TableCell>
         <TableCell component="th" scope="row">
-          {row.name}
+         
+        <IconButton size="small" onClick={() => {
+            setCurUser( {firstname: row.firstname, lastname: row.lastname, id: row.id, title: row.title } )
+            setCurRows( row.goals)
+          }}>
+          {<PersonIcon color="primary"/>}
+          <strong>{row.firstname + " " + row.lastname}  </strong>
+        </IconButton>
         </TableCell>
         <TableCell >{row.id}</TableCell>
         <TableCell >{row.title}</TableCell>
@@ -76,22 +90,24 @@ function Row(props) {
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Creation Date</TableCell>
                     <TableCell>Goal Name</TableCell>
+                    <TableCell>Creation Date</TableCell>
                     <TableCell>Description</TableCell>
                     <TableCell>Type</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {row.goals.map((GoalsRow) => (
-                    <TableRow key={GoalsRow.createdate}>
+                    <TableRow key={GoalsRow.goalname}>
                       <TableCell component="th" scope="row">
-                        <IconButton size="small" onClick={() => navigate('/goalview')}>
-                          {<Pageview color="warning"/>}
+                        <IconButton size="small" onClick={() => 1}>
+                          {<ReviewsIcon color="primary"/>}
                         </IconButton>
-                        {GoalsRow.createdate}
+                        {GoalsRow.name}
                       </TableCell>
-                      <TableCell>{GoalsRow.goalname}</TableCell>
+                      <TableCell>
+                        {GoalsRow.createdate} 
+                      </TableCell>
                       <TableCell>{GoalsRow.description}</TableCell>
                       <TableCell>
                         {GoalsRow.type}
@@ -109,14 +125,17 @@ function Row(props) {
 }
 
 Row.propTypes = {
+  setCurUser: PropTypes.func.isRequired,
+  setCurRows: PropTypes.func.isRequired,
   row: PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    firstname: PropTypes.string.isRequired,
+    lastname: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     
-    Goals: PropTypes.arrayOf(
+    goals: PropTypes.arrayOf(
       PropTypes.shape({
-        description: PropTypes.number.isRequired,
+        description: PropTypes.string.isRequired,
         goalname: PropTypes.string.isRequired,
         createdate: PropTypes.string.isRequired,
       }),
@@ -125,12 +144,12 @@ Row.propTypes = {
 };
 
 const rows = [
-  createData('Jill Johnson', 159, 'Engineer', 24, 4.0, 3.99),
-  createData('Tim Thompson', 237, 'Project Manager', 37, 4.3, 4.99),
-  createData('Eclair', 262, "Engineer", 24, 6.0, 3.79),
+  createData('Jill', 'Johnson', 159, 'Engineer'),
+  createData('Tim','Thompson', 237, 'Project Manager'),
+  createData('Eclair','', 262, "Engineer"),
 ];
 
-export default function CollapsibleTable() {
+export default function ManagerDashboard(setCurUser, setCurRows) {
   return (
     <div style={{width:"100%"}}>
     <br/>
@@ -140,19 +159,19 @@ export default function CollapsibleTable() {
           <TableRow>
             <TableCell className="fw-bold fs-2" style={{color: '#005151'}} colSpan={2}>
               <Image height="50" src={icon}/>
-              Employee
+              Your Employees
             </TableCell>
             </TableRow>
           <TableRow>
             <TableCell />
-            <TableCell style={{width: '200px'}}>Name</TableCell>
+            <TableCell style={{width: '300px'}}>Name</TableCell>
             <TableCell style={{width: '80px'}}>ID</TableCell>
             <TableCell>Title</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <Row key={row.name} row={row} />
+            <Row key={row.name} row={row} setCurUser={setCurUser} setCurRows={setCurRows}/>
           ))}
         </TableBody>
       </Table>

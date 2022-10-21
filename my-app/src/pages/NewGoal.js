@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BasicForm from "../components/BasicForm";
+import BasicForm from "./components/BasicForm";
 import "./NewGoal.css";
 
 function NewGoal() {
