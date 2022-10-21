@@ -12,6 +12,7 @@ import icon from './icon1.png';
 import GoalCard from './components/GoalCard'
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import IconButton from '@mui/material/IconButton';
+import { darken, lighten } from '@mui/material/styles';
 
 
 const columns = [
@@ -61,10 +62,10 @@ const columns = [
 
   {
     field: 'status',
-    description: 'Complete/In Progress/Initialized/Abandoned',
+    description: 'Done/In-Progress/Missed',
     headerName: 'Status',
     type: 'enum',
-    width: '90',
+    width: '120',
   },
 
   {
@@ -103,7 +104,7 @@ const rows = [
     description: 'Jon says Keurig is preferred!',
     createdate: "9/26/2021", completedate: "10/27/2021",
     editableField: "this field can be editedd (try fixing the typo)",
-    type: "Purchase", status: "Go"
+    type: "Purchase", status: "In-Progress"
   },
 
   {
@@ -111,7 +112,7 @@ const rows = [
     description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
     createdate: "11/2/21", completedate: "11/11/21",
     editableField: "this one too!",
-    type: "IT", status: "Stopped"
+    type: "IT", status: "Missed"
   },
 
   { id: 3876, name: 'Create Killer Robots', 
@@ -124,13 +125,13 @@ const rows = [
   { id: 3877, name: 'Test Employee Dashboard Frontend', 
     description: 'Try to break inputs, look for undefined behavior.', 
     createdate: "10/11/2022", completedate: "10/13/2022",
-    type: "Dev", status: "Go"
+    type: "Dev", status: "In-Progress"
   },
 
   { id: 5, name: 'Spend More Time Outside', 
     description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
     createdate: "4/12/2020", completedate: "5/16/2023",
-    type: "Personal", status: "Go"
+    type: "Personal", status: "In-Progress"
 
   },
 
@@ -144,6 +145,14 @@ let loggedInUser = {
 
 function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
   const navigate = useNavigate();
+  const getHoverBackgroundColor = (color, mode) =>
+  mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
+  const dateComp = (str) => {
+    const today = new Date()
+    const [day, month, year] = str.split("/");
+    const date = new Date(+year, month - 1, +day);
+    return date.getTime() > today.getTime() ? true : false
+  }
 
   return (
     <div style={{ height: 450, width: '100%' }}>
@@ -168,6 +177,15 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
       pageSize={10}
       rowsPerPageOptions={[6]}
       checkboxSelection={false}
+      sx={{
+        '& .super-app-theme--Done': {backgroundColor: 'rgba(0, 0, 0, 0.14)', color: 'text.disabled',
+          '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 0, 0, 0.14)'),}},
+        '& .super-app-theme--In-Progress': {backgroundColor: 'rgba(0, 255, 0, 0.24)',
+          '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 0, 0.24)')}},
+        '& .super-app-theme--Missed': {backgroundColor: 'rgba(255, 0, 0, .12)',
+          '&:hover': {bgcolor: getHoverBackgroundColor('rgba(255, 0, 0, .12)')}},
+      }}
+      getRowClassName={(params) => `super-app-theme--${params.row.status}`}
     />
     {GoalCard(selectedRow,curEmployee)}
 
