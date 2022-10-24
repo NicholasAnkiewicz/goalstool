@@ -24,6 +24,7 @@ function createData(firstname, lastname, id, title) {
     lastname,
     id,
     title,
+    //Sample Data
     goals: [
       {
         id: 235,
@@ -32,7 +33,7 @@ function createData(firstname, lastname, id, title) {
         name: 'Test Employee Dashboard Frontend',
         description: "Try to break inputs, look for undefined behavior.",
         type: "Dev",
-        status: "Go",
+        status: "Done",
       },
       {
         id: 292,
@@ -41,7 +42,7 @@ function createData(firstname, lastname, id, title) {
         name: 'Spend More Time Outside',
         description: "Vitamin D, fresh air, exercise! Before it gets cold. ",
         type: "Personal",
-        status: "Complete",
+        status: "In-Progress",
       },
     ],
   };
@@ -143,6 +144,7 @@ Row.propTypes = {
   }).isRequired,
 };
 
+//Sample Data
 const rows = [
   createData('Jill', 'Johnson', 159, 'Engineer'),
   createData('Tim','Thompson', 237, 'Project Manager'),

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
@@ -13,6 +13,7 @@ import GoalCard from './components/GoalCard'
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import IconButton from '@mui/material/IconButton';
 import { darken, lighten } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 
 
 const columns = [
@@ -69,11 +70,12 @@ const columns = [
   },
 
   {
-    field: "moreInfo",
-    headerName: "Comments",
+    field: "comments",
+    headerName: "",
     description: 'Click for Full Goal Information!',
     sortable: false,
-    width: 100,
+    filterable: false,
+    width: 50,
     renderCell: (params) => {
       const onClick = (e) => {
         e.stopPropagation(); 
@@ -96,7 +98,7 @@ const columns = [
 
 ];
 
-
+//Sample Data
 const rows = [
 
   {
@@ -137,22 +139,39 @@ const rows = [
 
 ];
 
-
+//Sample Data
 let loggedInUser = {
   firstname: "Jim",
-  lastname: "Johnson"
+  lastname: "Johnson",
+  eid: 42, //Employee ID
+  title: "Generic Middle Manager",
+  isManager: true,
+  email: "jimjohnson@acme.com",
+  compid: 2, //Company ID
+  mid: 43, //Manager ID
+  password: "password",
+
 }
+
+function QuickSearchToolbar() {
+  return (
+    <Box sx = {{ p: 0.5, pb: 0, }} >
+      <GridToolbarQuickFilter />
+    </Box>
+);}
 
 function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
   const navigate = useNavigate();
   const getHoverBackgroundColor = (color, mode) =>
-  mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
+    mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
+  
+  // Below code not in use
   const dateComp = (str) => {
     const today = new Date()
     const [day, month, year] = str.split("/");
     const date = new Date(+year, month - 1, +day);
     return date.getTime() > today.getTime() ? true : false
-  }
+  } 
 
   return (
     <div style={{ height: 450, width: '100%' }}>
@@ -174,6 +193,14 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
           changeSelectedRow(params.row);
       }}
       
+      components={{ Toolbar: QuickSearchToolbar }}
+      componentsProps={{
+        toolbar: {
+          showQuickFilter: true,
+          quickFilterProps: {debounceMs: 500},
+        }
+      }}
+      disableExportButton
       pageSize={10}
       rowsPerPageOptions={[6]}
       checkboxSelection={false}
@@ -204,7 +231,7 @@ export default function Dashboard() {
     <div>
       <Navbar style={{backgroundColor: '#005151'}}>
         
-          <Navbar.Brand style={{paddingLeft: '6%'}}className="fw-bold fs-3 navbar-light" href="#home">
+          <Navbar.Brand style={{paddingLeft: '6%'}}classNam e="fw-bold fs-3 navbar-light" href="#home">
             <Image className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Dashboard
           </Navbar.Brand>
@@ -212,7 +239,9 @@ export default function Dashboard() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
             <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
-              Signed in as <Button className="btn-lg">{loggedInUser.firstname}</Button>
+              Signed in as <Button style={{marginRight: '5px'}} className="btn-md"><strong>{loggedInUser.firstname}</strong></Button>
+              ID: {loggedInUser.eid}
+
             <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
 
             </Navbar.Text>
