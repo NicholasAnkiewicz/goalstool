@@ -4,6 +4,7 @@ from api import router
 import enum
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.ext.declarative import declarative_base
+from .base import Base, BaseModel
 
 app = FastAPI()
 app.include_router(router)
