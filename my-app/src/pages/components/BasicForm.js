@@ -1,4 +1,4 @@
-import {useFormik} from "formik";
+import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
 
 const BasicForm = () => {
@@ -8,50 +8,67 @@ const BasicForm = () => {
       handleChange,
     } = useFormik({
       initialValues: {
-        name_of_goal: "",
+        Title: "",
         Description: "",
-        Deadline: "",
+        Type: "",
+        Start_Date: "",
+        End_Date: "",
       },
     });
     const navigate = useNavigate();
   
     return (
       <form  autoComplete="off">
-        <label htmlFor="name_of_goal">Goal Title</label>
+        <label htmlFor="Title">Title</label>
         <input
-          value={values.name_of_goal}
+          value={values.Title}
           onChange={handleChange}
-          id="name_of_goal"
-          type="name_of_goal"
-          placeholder="Enter the title of Goal"
+          id="Title"
+          type="text"
+          placeholder="Enter the Title of Goal"
           onBlur={handleBlur}
+          required
         />
-         <label htmlFor="Description">Description</label>
-        <input
+        <label htmlFor="Description">Description</label>
+        <textarea
+          rows="5"
           value={values.Description}
           onChange={handleChange}
           id="Description"
-          type="Description"
+          type="text"
           placeholder="Enter the Description"
           onBlur={handleBlur}
+          required
         />
-        <label htmlFor="Deadline">StartDate</label>
+        <label htmlFor="Type">Type</label>
         <input
-          id="Deadline"
+          value={values.Type}
+          onChange={handleChange}
+          id="Type"
+          type="text"
+          placeholder="Enter the Type"
+          onBlur={handleBlur}
+          required
+        />
+        <label htmlFor="Start_Date">Start Date</label>
+        <input
+          id="Start_Date"
           type="date"
-          placeholder="Enter the Deadline"
-          value={values.Deadline}
+          placeholder="Enter the Start Date"
+          value={values.Start_Date}
           onChange={handleChange}
           onBlur={handleBlur}
+          required
         />
-        <label htmlFor="Deadline">Deadline</label>
+        <label htmlFor="End_Date">End Date</label>
         <input
-          id="Deadline"
+          id="End_Date"
           type="date"
-          placeholder="Enter the Deadline"
-          value={values.Deadline}
+          placeholder="Enter the End Date"
+          value={values.End_Date}
           onChange={handleChange}
           onBlur={handleBlur}
+          required
         />
         <button className="submitButton" type="submit">
           Submit
