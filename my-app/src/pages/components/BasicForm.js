@@ -35,6 +35,15 @@ const BasicForm = () => {
           placeholder="Enter the Description"
           onBlur={handleBlur}
         />
+        <label htmlFor="Deadline">StartDate</label>
+        <input
+          id="Deadline"
+          type="date"
+          placeholder="Enter the Deadline"
+          value={values.Deadline}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
         <label htmlFor="Deadline">Deadline</label>
         <input
           id="Deadline"

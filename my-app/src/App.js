@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import ManagerDashboard from './pages/ManagerDashboard'; 
 import NewGoal from './pages/NewGoal';
 import GoalCard from './pages/components/GoalCard';
+import ViewGoal from './pages/ViewGoal';
 
 function App() {
     return (      
@@ -14,6 +15,7 @@ function App() {
                 < Route path='/manager-dashboard' element={<ManagerDashboard />} />
                 < Route path='/NewGoal' element={<NewGoal />} />
                 < Route path='/goalcard' element={<GoalCard/> } />
+                < Route path='/ViewGoal' element={<ViewGoal/> } />
            </Routes>
       </BrowserRouter>
     );

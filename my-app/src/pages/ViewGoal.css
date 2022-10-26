@@ -1,0 +1,10 @@
+.Topbar {
+    background-color: #30CEBB;
+    padding: 24px 48px 12px;
+    text-align: center;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}

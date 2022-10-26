@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Image from 'react-bootstrap/Image';
 import logo from './login_logo.png';
+import newLogo from './social-logoUKG.png'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -21,8 +22,8 @@ function Login() {
   return (
     <Container fluid style={{backgroundColor: '#30CEBB', minHeight: '100vh', minWidth: '100vh'}}>
       <Row>
-        <Col className="d-flex align-items-center justify-content-start" style={{minHeight: '100vh'}}>
-          <Image src={logo}/>
+        <Col className="d-flex align-items-center justify-content-center" style={{minHeight: '50vh'}}>
+          <Image src={newLogo} height = "50%" width = "180%"/>
         </Col>
         <Col className="d-flex align-items-center justify-content-center">
           <Card style={{ width: '25rem', height: '25rem',}}>
