@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
@@ -26,8 +27,10 @@ async def get_test_employees(sess: Session=Depends(get_db)):
                 company_id="UKG",
                 company_name="UKG",
                 position_title="Test User",
-                start_date=datetime.now(),
-                current=True
+                is_manager=False,
+                current=True,
+                manager_id=123,
+                password="easypeesylemonsqueezy"
                 )
 
     sess.add(test_employee)
