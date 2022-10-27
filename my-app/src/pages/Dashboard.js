@@ -254,7 +254,7 @@ export default function Dashboard() {
     <div>
       <Navbar style={{backgroundColor: '#005151'}}>
         
-          <Navbar.Brand style={{paddingLeft: '6%'}}classNam e="fw-bold fs-3 navbar-light" href="#home">
+          <Navbar.Brand style={{paddingLeft: '6%'}}className="fw-bold fs-3 navbar-light" href="#home">
             <Image className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Dashboard
           </Navbar.Brand>
@@ -264,6 +264,7 @@ export default function Dashboard() {
             if(curEmployee != loggedInUser){setSelectedGoals(rows.slice(0,numOfCards))} }}>
               Your Goals
           </Button>
+
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
             <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
