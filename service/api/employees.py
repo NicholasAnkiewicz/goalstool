@@ -17,8 +17,8 @@ employees_router = APIRouter()
 async def get_users(sess: Session=Depends(get_db)):
     return sess.query(models.Employee).all()
 
-@employees_router.get("/employees/test", response_model=schemas.Employee)
-async def get_test_employees(sess: Session=Depends(get_db)):
+@employees_router.get("/employees/demo", response_model=schemas.Employee)
+async def seed_test_employee(sess: Session=Depends(get_db)):
     test_employee = models.Employee(
                 first_name="Saakshaat",
                 last_name="Singh",

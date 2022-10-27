@@ -5,7 +5,7 @@ from .base import Base, BaseModel
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 
 class Employee(Base, BaseModel):
-    __tablename__ = 'Employee'
+    __tablename__ = 'employees'
     first_name = Column(String(50))
     last_name = Column(String(50))
     employee_id = Column(Integer)
