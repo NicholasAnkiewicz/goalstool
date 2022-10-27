@@ -1,7 +1,9 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel
+
+from .goals import Goal
 
 class Employee(BaseModel):
     id: Optional[int]
@@ -17,6 +19,7 @@ class Employee(BaseModel):
     password: str = ''
     manager_id: int = -1
     created_at: datetime
+    goals: List[Goal] = []
 
     class Config:
         orm_mode = True # lets pydantic convert SQLAlchemy object <-> JSON
