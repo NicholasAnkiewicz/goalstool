@@ -28,8 +28,8 @@ function createData(firstname, lastname, id, title) {
     goals: [
       {
         id: 235,
-        createdate: '2020-01-05',
-        completedate: '2021-01-05',
+        createdate: '2020/01/05',
+        completedate: '2021/01/05',
         name: 'Test Employee Dashboard Frontend',
         description: "Try to break inputs, look for undefined behavior.",
         type: "Dev",
@@ -37,8 +37,8 @@ function createData(firstname, lastname, id, title) {
       },
       {
         id: 292,
-        createdate: '2020-01-02',
-        completedate: '2021-01-02',
+        createdate: '2020/01/02',
+        completedate: '2021/01/02',
         name: 'Spend More Time Outside',
         description: "Vitamin D, fresh air, exercise! Before it gets cold. ",
         type: "Personal",
@@ -52,6 +52,9 @@ function Row(props) {
   const { row } = props;
   const { setCurUser } = props;
   const { setCurRows } = props;
+  const { setSelectedGoals } = props;
+  const { setSelectedGoalIndex } = props;
+  const { numOfCards } = props;
   const [open, setOpen] = React.useState(false);
 
 
@@ -72,7 +75,9 @@ function Row(props) {
          
         <IconButton size="small" onClick={() => {
             setCurUser( {firstname: row.firstname, lastname: row.lastname, id: row.id, title: row.title } )
-            setCurRows( row.goals)
+            setCurRows(row.goals)
+            setSelectedGoals(row.goals.slice(0,numOfCards))
+            setSelectedGoalIndex(0)
           }}>
           {<PersonIcon color="primary"/>}
           <strong>{row.firstname + " " + row.lastname}  </strong>
@@ -109,7 +114,9 @@ function Row(props) {
                       <TableCell>
                         {GoalsRow.createdate} 
                       </TableCell>
-                      <TableCell>{GoalsRow.description}</TableCell>
+                      <TableCell>
+                        {GoalsRow.description}
+                      </TableCell>
                       <TableCell>
                         {GoalsRow.type}
                       </TableCell>
@@ -128,6 +135,7 @@ function Row(props) {
 Row.propTypes = {
   setCurUser: PropTypes.func.isRequired,
   setCurRows: PropTypes.func.isRequired,
+  setSelectedGoals: PropTypes.func.isRequired,
   row: PropTypes.shape({
     firstname: PropTypes.string.isRequired,
     lastname: PropTypes.string.isRequired,
@@ -151,9 +159,9 @@ const rows = [
   createData('Eclair','', 262, "Engineer"),
 ];
 
-export default function ManagerDashboard(setCurUser, setCurRows) {
+export default function ManagerDashboard(setCurUser, setCurRows, setSelectedGoals, setSelectedGoalIndex, numOfCards) {
   return (
-    <div style={{width:"100%"}}>
+    <box style={{width:"100%"}}>
     <br/>
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
@@ -166,18 +174,22 @@ export default function ManagerDashboard(setCurUser, setCurRows) {
             </TableRow>
           <TableRow>
             <TableCell />
-            <TableCell style={{width: '300px'}}>Name</TableCell>
-            <TableCell style={{width: '80px'}}>ID</TableCell>
+            <TableCell sx={{width: 300}}>Name</TableCell>
+            <TableCell sx={{width: 80}}>ID</TableCell>
             <TableCell>Title</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <Row key={row.name} row={row} setCurUser={setCurUser} setCurRows={setCurRows}/>
+            <Row key={row.name} 
+              row={row} 
+              setCurUser={setCurUser} setCurRows={setCurRows} 
+              setSelectedGoals={setSelectedGoals} setSelectedGoalIndex={setSelectedGoalIndex}
+              numOfCards={numOfCards}/>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-    </div>
+    </box>
   );
 }

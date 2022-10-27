@@ -14,6 +14,14 @@ import ReviewsIcon from '@mui/icons-material/Reviews';
 import IconButton from '@mui/material/IconButton';
 import { darken, lighten } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 const columns = [
@@ -26,14 +34,16 @@ const columns = [
 
   { field: 'name', 
     headerName: 'Name', 
-    flex: 1,
-    description: "What the goal is!"
+    flex: 0.5,
+    description: "What the goal is!",
+    minWidth: 200,
   },
 
   { field: 'description', 
     headerName: 'Description', 
     flex: 1,
-    description: "More information about what the goal entails"
+    description: "More information about what the goal entails",
+    minWidth: 125,
   },
 
   {
@@ -65,19 +75,18 @@ const columns = [
     field: 'status',
     description: 'Done/In-Progress/Missed',
     headerName: 'Status',
-    type: 'enum',
-    width: '120',
+    width: 120,
   },
 
   {
     field: "comments",
-    headerName: "",
+    headerName: "Actions",
     description: 'Click for Full Goal Information!',
     sortable: false,
     filterable: false,
-    width: 50,
+    width: 80,
     renderCell: (params) => {
-      const onClick = (e) => {
+      const viewComments = (e) => {
         e.stopPropagation(); 
         const api = params.api;
         const thisRow = {};
@@ -90,9 +99,13 @@ const columns = [
         return 1;
         //return alert(JSON.stringify(thisRow, null, 4));
       };
-      return  <div><IconButton size="small" onClick={onClick}>
+      return  (<div><IconButton size="small" onClick={viewComments}>
       {<ReviewsIcon color="primary"/>}
-    </IconButton></div>;
+    </IconButton>
+    <IconButton size="small" onClick={viewComments}>
+      {<DeleteIcon color="warning"/>}
+      </IconButton>
+    </div>);
     }
   }
 
@@ -153,14 +166,9 @@ let loggedInUser = {
 
 }
 
-function QuickSearchToolbar() {
-  return (
-    <Box sx = {{ p: 0.5, pb: 0, }} >
-      <GridToolbarQuickFilter />
-    </Box>
-);}
+const numOfCards = 4;
 
-function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
+function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex) {
   const navigate = useNavigate();
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
@@ -171,7 +179,7 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
     const [day, month, year] = str.split("/");
     const date = new Date(+year, month - 1, +day);
     return date.getTime() > today.getTime() ? true : false
-  } 
+  }
 
   return (
     <div style={{ height: 450, width: '100%' }}>
@@ -190,17 +198,26 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
       columns={columns}
       onRowClick={
         (params, event, details) => {
-          changeSelectedRow(params.row);
+          if (!selectedRows.includes(params.row)){
+            let temp = [...selectedRows];
+            temp[selectedGoalIndex] = params.row;
+            if (selectedGoalIndex+1 == selectedRows.length){
+              selectedGoalIndex=-1;
+            }
+            setSelectedGoalIndex(selectedGoalIndex+1);
+            setSelectedRows(temp);
+          }
       }}
       
-      components={{ Toolbar: QuickSearchToolbar }}
-      componentsProps={{
-        toolbar: {
-          showQuickFilter: true,
-          quickFilterProps: {debounceMs: 500},
-        }
+      components={{ Toolbar: () => 
+        <Box sx = {{ p: 0.5, pb: 0, }} > <GridToolbarQuickFilter /> </Box> }}
+
+      initialState={{
+        sorting: {
+          sortModel: [{ field: 'status', sort: 'desc'}],
+        },
       }}
-      disableExportButton
+
       pageSize={10}
       rowsPerPageOptions={[6]}
       checkboxSelection={false}
@@ -214,14 +231,20 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
       }}
       getRowClassName={(params) => `super-app-theme--${params.row.status}`}
     />
-    {GoalCard(selectedRow,curEmployee)}
-
+      <TableRow style={{width: '100%' }}>
+        {selectedRows.map((GoalsRow) => (
+          <TableCell sx={{maxWidth: (150/numOfCards)+"%"}}>
+            {GoalCard(GoalsRow,curEmployee)}
+          </TableCell>
+              ))}   
+      </TableRow>
   </div>
   )
 }
 
 export default function Dashboard() {
-  const [activeGoal, setActiveGoal] = React.useState(rows[0]);
+  const [selectedGoalIndex,setSelectedGoalIndex] = React.useState(0);
+  const [selectedGoals, setSelectedGoals] = React.useState(rows.slice(0,numOfCards));
   const [curEmployee, setCurUser] = React.useState(loggedInUser);
   const [curRows, setCurRows] = React.useState(rows);
   const nodeRef = React.useRef(null);
@@ -235,7 +258,12 @@ export default function Dashboard() {
             <Image className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Dashboard
           </Navbar.Brand>
-          <Button variant="light" onClick={() => {setCurUser(loggedInUser); setCurRows(rows) }}>Your Goals</Button>
+          <Button variant="light" onClick={() => 
+            {setCurUser(loggedInUser); 
+            setCurRows(rows); 
+            if(curEmployee != loggedInUser){setSelectedGoals(rows.slice(0,numOfCards))} }}>
+              Your Goals
+          </Button>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
             <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
@@ -248,11 +276,15 @@ export default function Dashboard() {
           </Navbar.Collapse>
       </Navbar>
       <div>
-        {EmployeeDashboard(activeGoal,setActiveGoal,curEmployee,curRows)}
-        <div ref={nodeRef} style={{float: 'right', width: "80%"}}>
-          <br/>
-          <br/>
-          {ManagerDashboard(setCurUser,setCurRows)}
+        {EmployeeDashboard(selectedGoals,setSelectedGoals,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex)}
+        <div>
+          <br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/>
+
+
+          <div style={{}}>
+          {ManagerDashboard(setCurUser,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards)}
+          </div>
         </div>
 
       </div>
@@ -260,4 +292,3 @@ export default function Dashboard() {
 
   );
 }
-
