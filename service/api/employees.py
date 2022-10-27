@@ -19,7 +19,7 @@ employees_router = APIRouter()
 async def get_employees(sess: Session=Depends(get_db)):
     return sess.query(models.Employee).all()
 
-@employees_router.get("/employees/{id}", response_model=schemas.Employee)
+@employees_router.get("/employee/{id}", response_model=schemas.Employee)
 async def get_employee(id: int, sess: Session=Depends(get_db)):
     employee = sess.query(models.Employee).get(id)
     if employee:

@@ -17,7 +17,7 @@ class Employee(BaseModel):
     current: bool = True
     is_manager: bool = True
     password: str = ''
-    manager_id: int = -1
+    manager_id: int
     created_at: datetime
     goals: List[Goal] = []
 
