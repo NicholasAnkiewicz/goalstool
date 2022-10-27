@@ -1,18 +1,18 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
-class Goals(BaseModel):
+from models import GoalStatus
+
+class Goal(BaseModel):
     id: Optional[int]
-    first_name: str
-    last_name: str
-    employee_id: str
-    email: str #TODO: add validator for email regex
-    company_id: str
-    company_name: str
-    position_title: str
+    title: str
+    description: str
+    assignee_id: int
+    status: GoalStatus
     start_date: datetime
-    current: bool = True
+    end_date: Optional[datetime]
 
     class Config:
         orm_mode = True # lets pydantic convert SQLAlchemy object <-> JSON

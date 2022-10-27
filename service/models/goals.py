@@ -1,30 +1,21 @@
-from fastapi import FastAPI
-from traitlets import Bool
-from api import router
 import enum
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
-from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, ForeignKey
+from sqlalchemy.orm import relationship
+
 from .base import Base, BaseModel
 
-app = FastAPI()
-app.include_router(router)
+class GoalStatus(str, enum.Enum):
+    to_do = 'To Do'
+    in_progress = 'In Progress'
+    completed = 'Completed'
 
-Base = declarative_base()
-
-class MyEnum(enum.Enum):
-    to_do = 0
-    in_progress = 1
-    completed = 2
-
-class Goals(BaseModel):
-    __tablename__ = 'Goals'
-    goal_id = Column(Integer, primary_key=True)
+class Goal(Base, BaseModel):
+    __tablename__ = 'goals'
     title = Column(String(50))
-    add_description = Column(String(255))
-    assigned_id = Column(Integer, primary_key=True)
-    manager_id = Column(Integer, primary_key=True)
-    comment_id  = Column(Integer, primary_key=True)
-    status = Column(Enum(MyEnum))
+    description = Column(String(255))
+    assignee_id = Column(Integer, ForeignKey("employees.id"))
+    assignee = relationship("Employee", back_populates="goals")
+    status = Column(Enum(GoalStatus))
     start_date = Column(DateTime)    
-    end_date = Column(DateTime)
-    type = Column(String(50))
+    end_date = Column(DateTime, nullable=True)

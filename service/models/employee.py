@@ -1,11 +1,13 @@
 from datetime import datetime
 import enum
 
-from .base import Base, BaseModel
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
+from sqlalchemy.orm import relationship
+
+from .base import Base, BaseModel
 
 class Employee(Base, BaseModel):
-    __tablename__ = 'Employee'
+    __tablename__ = 'employees'
     first_name = Column(String(50))
     last_name = Column(String(50))
     employee_id = Column(Integer)
@@ -17,3 +19,4 @@ class Employee(Base, BaseModel):
     manager_id = Column(Integer)
     is_manager = Column(Boolean)
     password = Column(String(50))
+    goals = relationship("Goal", back_populates="assignee")

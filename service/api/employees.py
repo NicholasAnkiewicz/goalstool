@@ -3,6 +3,8 @@ from typing import List
 from datetime import datetime
 
 from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -14,11 +16,19 @@ import schemas
 employees_router = APIRouter()
 
 @employees_router.get("/employees", response_model=List[schemas.Employee])
-async def get_users(sess: Session=Depends(get_db)):
+async def get_employees(sess: Session=Depends(get_db)):
     return sess.query(models.Employee).all()
 
-@employees_router.get("/employees/test", response_model=schemas.Employee)
-async def get_test_employees(sess: Session=Depends(get_db)):
+@employees_router.get("/employee/{id}", response_model=schemas.Employee)
+async def get_employee(id: int, sess: Session=Depends(get_db)):
+    employee = sess.query(models.Employee).get(id)
+    if employee:
+        return employee
+    else:
+        raise HTTPException(404, detail=f"Employee with id {id} not found")
+
+@employees_router.get("/employees/demo", response_model=schemas.Employee)
+async def seed_test_employee(sess: Session=Depends(get_db)):
     test_employee = models.Employee(
                 first_name="Saakshaat",
                 last_name="Singh",
