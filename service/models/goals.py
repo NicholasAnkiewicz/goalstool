@@ -5,10 +5,10 @@ from sqlalchemy.orm import relationship
 
 from .base import Base, BaseModel
 
-class GoalStatus(enum.Enum):
-    to_do = 1
-    in_progress = 2
-    completed = 3
+class GoalStatus(str, enum.Enum):
+    to_do = 'To Do'
+    in_progress = 'In Progress'
+    completed = 'Completed'
 
 class Goal(Base, BaseModel):
     __tablename__ = 'goals'
