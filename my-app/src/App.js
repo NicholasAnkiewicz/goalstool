@@ -16,6 +16,7 @@ function App() {
                 < Route path='/NewGoal' element={<NewGoal />} />
                 < Route path='/goalcard' element={<GoalCard/> } />
                 < Route path='/ViewGoal' element={<ViewGoal/> } />
+
            </Routes>
       </BrowserRouter>
     );

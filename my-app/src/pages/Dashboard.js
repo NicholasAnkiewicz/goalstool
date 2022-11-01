@@ -14,113 +14,42 @@ import ReviewsIcon from '@mui/icons-material/Reviews';
 import IconButton from '@mui/material/IconButton';
 import { darken, lighten } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AlertBox from './components/AlertBox.js'
 
-
-const columns = [
-
-  { field: 'id', 
-    headerName: 'ID', 
-    width: 80,
-    description: "The goal's unique 'id'entifier, or ID"
-  },
-
-  { field: 'name', 
-    headerName: 'Name', 
-    flex: 1,
-    description: "What the goal is!"
-  },
-
-  { field: 'description', 
-    headerName: 'Description', 
-    flex: 1,
-    description: "More information about what the goal entails"
-  },
-
-  {
-    field: 'type',
-    headerName: 'Type',
-    width: 110,
-    description: 'What type of goal this is'
-  },
-
-  {
-    field: 'createdate',
-    description: 'The date of creation for the goal',
-    headerName: 'Creation Date',
-    type: 'date',
-    valueGetter: ({ value }) => value && new Date(value),
-    width: 130,
-  },
-
-  {
-    field: 'completedate',
-    description: "The predicted completion date for a goal",
-    headerName: 'Completion Date',
-    type: 'date',
-    valueGetter: ({ value }) => value && new Date(value),
-    width: 155,
-  },
-
-  {
-    field: 'status',
-    description: 'Done/In-Progress/Missed',
-    headerName: 'Status',
-    type: 'enum',
-    width: '120',
-  },
-
-  {
-    field: "comments",
-    headerName: "",
-    description: 'Click for Full Goal Information!',
-    sortable: false,
-    filterable: false,
-    width: 50,
-    renderCell: (params) => {
-      const onClick = (e) => {
-        e.stopPropagation(); 
-        const api = params.api;
-        const thisRow = {};
-        api
-          .getAllColumns()
-          .filter((c) => c.field !== "__check__" && !!c)
-          .forEach(
-            (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
-          );
-        return 1;
-        //return alert(JSON.stringify(thisRow, null, 4));
-      };
-      return  <div><IconButton size="small" onClick={onClick}>
-      {<ReviewsIcon color="primary"/>}
-    </IconButton></div>;
-    }
-  }
-
-];
+import {
+  GridActionsCellItem,
+  GridRowId,
+  GridColumns,
+} from '@mui/x-data-grid';
 
 //Sample Data
-const rows = [
+let rows = [
 
   {
     id: 298, name: 'Purchase New Coffee Machine',
     description: 'Jon says Keurig is preferred!',
     createdate: "9/26/2021", completedate: "10/27/2021",
-    editableField: "this field can be editedd (try fixing the typo)",
     type: "Purchase", status: "In-Progress"
   },
 
   {
     id: 62, name: 'Set Up New Laptops',
-    description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
+    description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
     createdate: "11/2/21", completedate: "11/11/21",
-    editableField: "this one too!",
     type: "IT", status: "Missed"
   },
 
   { id: 3876, name: 'Create Killer Robots', 
     description: 'Pretty self explanatory, really.',
     createdate: "2/3/1989", completedate: "1/1/2040",
-    editableField: "even the one underneath, with no text!",
     type: "Evil", status: "Done"
   },
 
@@ -150,17 +79,11 @@ let loggedInUser = {
   compid: 2, //Company ID
   mid: 43, //Manager ID
   password: "password",
-
 }
 
-function QuickSearchToolbar() {
-  return (
-    <Box sx = {{ p: 0.5, pb: 0, }} >
-      <GridToolbarQuickFilter />
-    </Box>
-);}
+const numOfCards = 4;
 
-function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
+function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns) {
   const navigate = useNavigate();
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
@@ -171,7 +94,7 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
     const [day, month, year] = str.split("/");
     const date = new Date(+year, month - 1, +day);
     return date.getTime() > today.getTime() ? true : false
-  } 
+  }
 
   return (
     <div style={{ height: 450, width: '100%' }}>
@@ -190,17 +113,26 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
       columns={columns}
       onRowClick={
         (params, event, details) => {
-          changeSelectedRow(params.row);
+          if (!selectedRows.includes(params.row)){
+            let temp = [...selectedRows];
+            temp[selectedGoalIndex] = params.row;
+            if (selectedGoalIndex+1 == selectedRows.length){
+              selectedGoalIndex=-1;
+            }
+            setSelectedGoalIndex(selectedGoalIndex+1);
+            setSelectedRows(temp);
+          }
       }}
       
-      components={{ Toolbar: QuickSearchToolbar }}
-      componentsProps={{
-        toolbar: {
-          showQuickFilter: true,
-          quickFilterProps: {debounceMs: 500},
-        }
+      components={{ Toolbar: () => 
+        <Box sx = {{ p: 0.5, pb: 0, }} > <GridToolbarQuickFilter /> </Box> }}
+
+      initialState={{
+        sorting: {
+          sortModel: [{ field: 'status', sort: 'desc'}],
+        },
       }}
-      disableExportButton
+
       pageSize={10}
       rowsPerPageOptions={[6]}
       checkboxSelection={false}
@@ -214,18 +146,110 @@ function EmployeeDashboard(selectedRow,changeSelectedRow,curEmployee,curRows) {
       }}
       getRowClassName={(params) => `super-app-theme--${params.row.status}`}
     />
-    {GoalCard(selectedRow,curEmployee)}
-
+      <TableRow sx={{width: '100%'}}>
+        {selectedRows.map((GoalsRow) => (
+          <TableCell sx={{width: "25%"}}>
+            {GoalCard(GoalsRow,curEmployee)}
+          </TableCell>
+              ))}   
+      </TableRow>
   </div>
   )
 }
 
 export default function Dashboard() {
-  const [activeGoal, setActiveGoal] = React.useState(rows[0]);
-  const [curEmployee, setCurUser] = React.useState(loggedInUser);
+  const [selectedGoalIndex,setSelectedGoalIndex] = React.useState(0);
+  const [selectedGoals, setSelectedGoals] = React.useState(rows.slice(0,numOfCards));
+  const [curEmployee, setCurEmployee] = React.useState(loggedInUser);
   const [curRows, setCurRows] = React.useState(rows);
-  const nodeRef = React.useRef(null);
   const navigate = useNavigate();
+
+  const columns = [
+
+    { field: 'id', 
+      headerName: 'ID', 
+      width: 80,
+      description: "The goal's unique 'id'entifier, or ID"
+    },
+  
+    { field: 'name', 
+      headerName: 'Name', 
+      flex: 0.5,
+      description: "What the goal is!",
+      minWidth: 200,
+    },
+  
+    { field: 'description', 
+      headerName: 'Description', 
+      flex: 1,
+      description: "More information about what the goal entails",
+      minWidth: 125,
+    },
+  
+    {
+      field: 'type',
+      headerName: 'Type',
+      width: 110,
+      description: 'What type of goal this is'
+    },
+  
+    {
+      field: 'createdate',
+      description: 'The date of creation for the goal',
+      headerName: 'Creation Date',
+      type: 'date',
+      valueGetter: ({ value }) => value && new Date(value),
+      width: 130,
+    },
+  
+    {
+      field: 'completedate',
+      description: "The predicted completion date for a goal",
+      headerName: 'Completion Date',
+      type: 'date',
+      valueGetter: ({ value }) => value && new Date(value),
+      width: 155,
+    },
+  
+    {
+      field: 'status',
+      description: 'Done/In-Progress/Missed',
+      headerName: 'Status',
+      width: 120,
+    },
+  
+    {
+      field: "actions",
+      type: 'actions',
+      headerName: "Actions",
+      description: 'Click for Full Goal Information!',
+      sortable: false,
+      filterable: false,
+      width: 80,
+  
+      getActions: (params) => [
+
+        <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => 1} />,
+        
+        AlertBox(
+          {
+            deny: "Cancel", 
+            accept: "I'm Sure", 
+            body: "Are you sure you want to delete this goal?", 
+            title: "Delete Goal #" + params.id
+          },
+          () => {
+            setCurRows( curRows.filter( (row) => row.id !== params.id ))
+            rows=rows.filter( (row) => row.id !== params.id)
+          }, 
+          () => 1,
+          <DeleteIcon color="warning"/>,
+        )
+      ]
+    
+    }
+  
+  ];
 
   return (
     <div>
@@ -235,7 +259,13 @@ export default function Dashboard() {
             <Image className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Dashboard
           </Navbar.Brand>
-          <Button variant="light" style={{color: '#005151'}} onClick={() => {setCurUser(loggedInUser); setCurRows(rows) }}>Your Goals</Button>
+          <Button variant="light" onClick={() => 
+            {setCurEmployee(loggedInUser); 
+            setCurRows(rows); 
+            if(curEmployee != loggedInUser){setSelectedGoals(rows.slice(0,numOfCards))} }}>
+              Your Goals
+          </Button>
+
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
             <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
@@ -248,11 +278,15 @@ export default function Dashboard() {
           </Navbar.Collapse>
       </Navbar>
       <div>
-        {EmployeeDashboard(activeGoal,setActiveGoal,curEmployee,curRows)}
-        <div ref={nodeRef} style={{float: 'right', width: "80%"}}>
-          <br/>
-          <br/>
-          {ManagerDashboard(setCurUser,setCurRows)}
+        {EmployeeDashboard(selectedGoals,setSelectedGoals,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns)}
+        <div>
+          <br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/><br/><br/>
+
+
+          <div style={{}}>
+          {ManagerDashboard(setCurEmployee,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards)}
+          </div>
         </div>
 
       </div>
@@ -260,4 +294,3 @@ export default function Dashboard() {
 
   );
 }
-
