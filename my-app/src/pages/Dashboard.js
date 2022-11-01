@@ -22,118 +22,34 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AlertBox from './components/AlertBox.js'
 
-
-const columns = [
-
-  { field: 'id', 
-    headerName: 'ID', 
-    width: 80,
-    description: "The goal's unique 'id'entifier, or ID"
-  },
-
-  { field: 'name', 
-    headerName: 'Name', 
-    flex: 0.5,
-    description: "What the goal is!",
-    minWidth: 200,
-  },
-
-  { field: 'description', 
-    headerName: 'Description', 
-    flex: 1,
-    description: "More information about what the goal entails",
-    minWidth: 125,
-  },
-
-  {
-    field: 'type',
-    headerName: 'Type',
-    width: 110,
-    description: 'What type of goal this is'
-  },
-
-  {
-    field: 'createdate',
-    description: 'The date of creation for the goal',
-    headerName: 'Creation Date',
-    type: 'date',
-    valueGetter: ({ value }) => value && new Date(value),
-    width: 130,
-  },
-
-  {
-    field: 'completedate',
-    description: "The predicted completion date for a goal",
-    headerName: 'Completion Date',
-    type: 'date',
-    valueGetter: ({ value }) => value && new Date(value),
-    width: 155,
-  },
-
-  {
-    field: 'status',
-    description: 'Done/In-Progress/Missed',
-    headerName: 'Status',
-    width: 120,
-  },
-
-  {
-    field: "comments",
-    headerName: "Actions",
-    description: 'Click for Full Goal Information!',
-    sortable: false,
-    filterable: false,
-    width: 80,
-    renderCell: (params) => {
-      const viewComments = (e) => {
-        e.stopPropagation(); 
-        const api = params.api;
-        const thisRow = {};
-        api
-          .getAllColumns()
-          .filter((c) => c.field !== "__check__" && !!c)
-          .forEach(
-            (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
-          );
-        return 1;
-        //return alert(JSON.stringify(thisRow, null, 4));
-      };
-      return  (<div><IconButton size="small" onClick={viewComments}>
-      {<ReviewsIcon color="primary"/>}
-    </IconButton>
-    <IconButton size="small" onClick={viewComments}>
-      {<DeleteIcon color="warning"/>}
-      </IconButton>
-    </div>);
-    }
-  }
-
-];
+import {
+  GridActionsCellItem,
+  GridRowId,
+  GridColumns,
+} from '@mui/x-data-grid';
 
 //Sample Data
-const rows = [
+let rows = [
 
   {
     id: 298, name: 'Purchase New Coffee Machine',
     description: 'Jon says Keurig is preferred!',
     createdate: "9/26/2021", completedate: "10/27/2021",
-    editableField: "this field can be editedd (try fixing the typo)",
     type: "Purchase", status: "In-Progress"
   },
 
   {
     id: 62, name: 'Set Up New Laptops',
-    description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
+    description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
     createdate: "11/2/21", completedate: "11/11/21",
-    editableField: "this one too!",
     type: "IT", status: "Missed"
   },
 
   { id: 3876, name: 'Create Killer Robots', 
     description: 'Pretty self explanatory, really.',
     createdate: "2/3/1989", completedate: "1/1/2040",
-    editableField: "even the one underneath, with no text!",
     type: "Evil", status: "Done"
   },
 
@@ -163,12 +79,11 @@ let loggedInUser = {
   compid: 2, //Company ID
   mid: 43, //Manager ID
   password: "password",
-
 }
 
 const numOfCards = 4;
 
-function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex) {
+function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns) {
   const navigate = useNavigate();
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
@@ -231,9 +146,9 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
       }}
       getRowClassName={(params) => `super-app-theme--${params.row.status}`}
     />
-      <TableRow style={{width: '100%' }}>
+      <TableRow sx={{width: '100%'}}>
         {selectedRows.map((GoalsRow) => (
-          <TableCell sx={{maxWidth: (150/numOfCards)+"%"}}>
+          <TableCell sx={{width: "25%"}}>
             {GoalCard(GoalsRow,curEmployee)}
           </TableCell>
               ))}   
@@ -245,10 +160,96 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
 export default function Dashboard() {
   const [selectedGoalIndex,setSelectedGoalIndex] = React.useState(0);
   const [selectedGoals, setSelectedGoals] = React.useState(rows.slice(0,numOfCards));
-  const [curEmployee, setCurUser] = React.useState(loggedInUser);
+  const [curEmployee, setCurEmployee] = React.useState(loggedInUser);
   const [curRows, setCurRows] = React.useState(rows);
-  const nodeRef = React.useRef(null);
   const navigate = useNavigate();
+
+  const columns = [
+
+    { field: 'id', 
+      headerName: 'ID', 
+      width: 80,
+      description: "The goal's unique 'id'entifier, or ID"
+    },
+  
+    { field: 'name', 
+      headerName: 'Name', 
+      flex: 0.5,
+      description: "What the goal is!",
+      minWidth: 200,
+    },
+  
+    { field: 'description', 
+      headerName: 'Description', 
+      flex: 1,
+      description: "More information about what the goal entails",
+      minWidth: 125,
+    },
+  
+    {
+      field: 'type',
+      headerName: 'Type',
+      width: 110,
+      description: 'What type of goal this is'
+    },
+  
+    {
+      field: 'createdate',
+      description: 'The date of creation for the goal',
+      headerName: 'Creation Date',
+      type: 'date',
+      valueGetter: ({ value }) => value && new Date(value),
+      width: 130,
+    },
+  
+    {
+      field: 'completedate',
+      description: "The predicted completion date for a goal",
+      headerName: 'Completion Date',
+      type: 'date',
+      valueGetter: ({ value }) => value && new Date(value),
+      width: 155,
+    },
+  
+    {
+      field: 'status',
+      description: 'Done/In-Progress/Missed',
+      headerName: 'Status',
+      width: 120,
+    },
+  
+    {
+      field: "actions",
+      type: 'actions',
+      headerName: "Actions",
+      description: 'Click for Full Goal Information!',
+      sortable: false,
+      filterable: false,
+      width: 80,
+  
+      getActions: (params) => [
+
+        <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => 1} />,
+        
+        AlertBox(
+          {
+            deny: "Cancel", 
+            accept: "I'm Sure", 
+            body: "Are you sure you want to delete this goal?", 
+            title: "Delete Goal #" + params.id
+          },
+          () => {
+            setCurRows( curRows.filter( (row) => row.id !== params.id ))
+            rows=rows.filter( (row) => row.id !== params.id)
+          }, 
+          () => 1,
+          <DeleteIcon color="warning"/>,
+        )
+      ]
+    
+    }
+  
+  ];
 
   return (
     <div>
@@ -259,7 +260,7 @@ export default function Dashboard() {
             Dashboard
           </Navbar.Brand>
           <Button variant="light" onClick={() => 
-            {setCurUser(loggedInUser); 
+            {setCurEmployee(loggedInUser); 
             setCurRows(rows); 
             if(curEmployee != loggedInUser){setSelectedGoals(rows.slice(0,numOfCards))} }}>
               Your Goals
@@ -277,14 +278,14 @@ export default function Dashboard() {
           </Navbar.Collapse>
       </Navbar>
       <div>
-        {EmployeeDashboard(selectedGoals,setSelectedGoals,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex)}
+        {EmployeeDashboard(selectedGoals,setSelectedGoals,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns)}
         <div>
           <br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/>
 
 
           <div style={{}}>
-          {ManagerDashboard(setCurUser,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards)}
+          {ManagerDashboard(setCurEmployee,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards)}
           </div>
         </div>
 

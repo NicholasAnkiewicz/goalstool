@@ -14,7 +14,7 @@ import { CardActionArea } from '@mui/material';
 
 export default function GoalCard(goal,employee) {
   return (
-    <Card sx={{}}>
+    <Card variant="elevation" sx={{ width: '100%'}}>
       <CardActionArea>
        <CardHeader
          avatar={
@@ -29,13 +29,13 @@ export default function GoalCard(goal,employee) {
         title={"(" + goal.id + ")" + goal.name}
         subheader={employee.firstname + " " + employee.lastname}
       />
-
+      
       <CardContent>
         <Typography sx={{ fontSize: 14}} color="text.secondary" gutterBottom>
           {goal.type}
         </Typography>
-        <Typography variant="" color="text.primary">
-        {goal.description}
+        <Typography style={{overflow: "hidden", textOverflow: "ellipsis", height: '75px'}} variant="body1" color="text.primary">
+          {goal.description}
         </Typography>
         <Typography variant="body2" color="text.secondary">
         <strong>{goal.status}</strong> {goal.createdate + ' - ' + goal.completedate} 
