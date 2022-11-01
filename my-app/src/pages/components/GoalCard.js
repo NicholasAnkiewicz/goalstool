@@ -12,13 +12,14 @@ import ReviewsIcon from '@mui/icons-material/Reviews';
 import Box from '@mui/material/Box';
 import { CardActionArea } from '@mui/material';
 
+
 export default function GoalCard(goal,employee) {
   return (
     <Card variant="elevation" sx={{ width: '100%'}}>
       <CardActionArea>
        <CardHeader
          avatar={
-           <Avatar sx={ goal.status=="Missed"?{ bgcolor: red[500] }: goal.status == "Done" ? { bgcolor: blue[100]} : { bgcolor: green[500]}  } aria-label="recipe">
+           <Avatar sx={ goal.status=="Missed"?{ bgcolor: red[500] }: goal.status == "Done" ? { bgcolor: blue[100]} : { bgcolor: green[500]}  }>
            </Avatar>
          }
         action={
@@ -26,15 +27,15 @@ export default function GoalCard(goal,employee) {
                 {<ReviewsIcon size="lg" color="primary"/>}
             </IconButton>
         }
-        title={"(" + goal.id + ")" + goal.name}
+        title={goal.name}
         subheader={employee.firstname + " " + employee.lastname}
       />
       
-      <CardContent>
+      <CardContent sx={{height: '200px'}}>
         <Typography sx={{ fontSize: 14}} color="text.secondary" gutterBottom>
-          {goal.type}
+          {goal.type + " (" + goal.id + ")"}
         </Typography>
-        <Typography style={{overflow: "hidden", textOverflow: "ellipsis", height: '75px'}} variant="body1" color="text.primary">
+        <Typography style={{overflow: "hidden", textOverflow: "ellipsis", height: '70%'}} variant="body1" color="text.primary">
           {goal.description}
         </Typography>
         <Typography variant="body2" color="text.secondary">

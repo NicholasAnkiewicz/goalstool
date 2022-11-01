@@ -6,7 +6,7 @@ import './Dashboard.css';
 import Navbar from 'react-bootstrap/Navbar';
 import logo from './ukglogo.jpg';
 import ManagerDashboard from "./ManagerDashboard.js"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Image from 'react-bootstrap/Image';
 import icon from './icon1.png';
 import GoalCard from './components/GoalCard'
@@ -42,7 +42,7 @@ let rows = [
 
   {
     id: 62, name: 'Set Up New Laptops',
-    description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
+    description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? I am now going to write a bunch more here to test whether or not anything breaks when a verrrrry long description is used. This should roughly be the maximum length of a description, right?',
     createdate: "11/2/21", completedate: "11/11/21",
     type: "IT", status: "Missed"
   },
@@ -148,7 +148,7 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
     />
       <TableRow sx={{width: '100%'}}>
         {selectedRows.map((GoalsRow) => (
-          <TableCell sx={{width: "25%"}}>
+          <TableCell sx={{height: "350px", width: "25%"}}>
             {GoalCard(GoalsRow,curEmployee)}
           </TableCell>
               ))}   
@@ -158,6 +158,14 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
 }
 
 export default function Dashboard() {
+
+  const {state} = useLocation();
+  if (state != null){
+    loggedInUser = state.user;
+    rows = state.goals;
+    console.log(state);
+  }
+
   const [selectedGoalIndex,setSelectedGoalIndex] = React.useState(0);
   const [selectedGoals, setSelectedGoals] = React.useState(rows.slice(0,numOfCards));
   const [curEmployee, setCurEmployee] = React.useState(loggedInUser);
@@ -282,10 +290,10 @@ export default function Dashboard() {
         <div>
           <br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/>
+          <br/><br/>
 
-
-          <div style={{}}>
-          {ManagerDashboard(setCurEmployee,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards)}
+          <div>
+          {loggedInUser.isManager ? ManagerDashboard(setCurEmployee,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards) : "(not a manager)"}
           </div>
         </div>
 

@@ -17,6 +17,25 @@ function Login() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const navigate = useNavigate();
+  const onFormSubmit = e => {
+    e.preventDefault()
+    const formData = new FormData(e.target),
+      formDataObj = Object.fromEntries(formData.entries())
+    fetchGoals(formDataObj.id,formDataObj.password)
+  }
+
+  const fetchGoals = async (id,password) => {
+    const response = await fetch("http://localhost:8000/auth?eid="+id+"&password="+password)
+    if (response === null){console.log("TIMED OUT")}
+    const data = await response.json()
+    if (data !== null){
+      navigate('./Dashboard', {goals: data.goals, user: data.user})
+    }
+    else{
+      console.log("Date is null!")
+    }
+  }
+
 
   return (
     <Container fluid style={{backgroundColor: '#30CEBB', minHeight: '100vh', minWidth: '100vh'}}>
@@ -28,15 +47,15 @@ function Login() {
           <Card style={{ width: '25rem', height: '25rem',}}>
             <Card.Body>
 
-              <Form style={{color: '#005151'}}>
+              <Form onSubmit={onFormSubmit} style={{color: '#005151'}}>
                 <Form.Group className="mb-2 ">
                   <Form.Label className="fw-bold fs-2">Username</Form.Label>
-                  <Form.Control className="form-control-lg" type="text" placeholder="Enter username" required/>
+                  <Form.Control name="eid" className="form-control-lg" type="text" placeholder="Enter username" required/>
                 </Form.Group>
 
                 <Form.Group className="mb-2">
                   <Form.Label className="fw-bold fs-2">Password</Form.Label>
-                  <Form.Control className="form-control-lg" type="password" placeholder="Password" required/>
+                  <Form.Control name="password" className="form-control-lg" type="password" placeholder="Password" required/>
                 </Form.Group>
                 <div className="d-grid gap-5">
                   <Button className="btn-sm float-end border-0" style={{backgroundColor: '#53565A'}} onClick={handleShow}>

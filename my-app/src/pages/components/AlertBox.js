@@ -5,9 +5,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import IconButton from '@mui/material/IconButton';
-import Box from '@mui/material/Box';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 import {
   GridActionsCellItem,
@@ -17,7 +14,6 @@ import {
 
 export default function AlertDialog(messageContent,acceptHandler,denyHandler,icon) {
   const [open, setOpen] = React.useState(false);
-
   const handleAccept = (accept) => {
     setOpen(true);
     accept();
@@ -41,7 +37,7 @@ export default function AlertDialog(messageContent,acceptHandler,denyHandler,ico
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {messageContent.title}
+          {icon}{messageContent.title}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -56,7 +52,6 @@ export default function AlertDialog(messageContent,acceptHandler,denyHandler,ico
         </DialogActions>
       </Dialog>
     
-
     </span>
   );
 }
