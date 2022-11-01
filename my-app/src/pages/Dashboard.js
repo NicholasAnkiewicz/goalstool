@@ -378,15 +378,48 @@ export default function Dashboard() {
     {
       field: "actions",
       type: 'actions',
-      headerName: "Actions",
+      headerName: "View",
       description: 'Click for Full Goal Information!',
       sortable: false,
       filterable: false,
-      width: 80,
+      width: 100,
   
       getActions: (params) => [
 
         <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => setModalShow(true) }/>,
+        // <GoalDetailModal
+        //   show={modalShow}
+        //   onHide={() => setModalShow(false)}
+        // />,
+        // AlertBox(
+        //   {
+        //     deny: "Cancel", 
+        //     accept: "I'm Sure", 
+        //     body: "Are you sure you want to delete this goal?", 
+        //     title: "Delete Goal #" + params.id
+        //   },
+        //   () => {
+        //     setCurRows( curRows.filter( (row) => row.id !== params.id ))
+        //     rows=rows.filter( (row) => row.id !== params.id)
+        //   }, 
+        //   () => 1,
+        //   <DeleteIcon color="warning"/>,
+        // )
+      ]
+    
+    },
+    {
+      field: "Archive",
+      type: 'actions',
+      headerName: "Archive",
+      description: 'Set it to archive!',
+      sortable: false,
+      filterable: false,
+      width: 100,
+  
+      getActions: (params) => [
+
+        // <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => setModalShow(true) }/>,
         <GoalDetailModal
           show={modalShow}
           onHide={() => setModalShow(false)}
@@ -395,8 +428,8 @@ export default function Dashboard() {
           {
             deny: "Cancel", 
             accept: "I'm Sure", 
-            body: "Are you sure you want to delete this goal?", 
-            title: "Delete Goal #" + params.id
+            body: "Are you sure you want to set this goal as archieve?", 
+            title: "Archieve Goal #" + params.id
           },
           () => {
             setCurRows( curRows.filter( (row) => row.id !== params.id ))
