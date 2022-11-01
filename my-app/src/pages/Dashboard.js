@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
-import { Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
 import Navbar from 'react-bootstrap/Navbar';
@@ -22,7 +22,9 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AlertBox from './components/AlertBox.js'
+import AlertBox from './components/AlertBox.js';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 
 import {
   GridActionsCellItem,
@@ -36,33 +38,33 @@ let rows = [
   {
     id: 298, name: 'Purchase New Coffee Machine',
     description: 'Jon says Keurig is preferred!',
-    createdate: "9/26/2021", completedate: "10/27/2021",
-    type: "Purchase", status: "In-Progress"
+    startdate: "9/26/2021", completedate: "10/27/2021",
+    status: "In-Progress"
   },
 
   {
     id: 62, name: 'Set Up New Laptops',
     description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work?',
-    createdate: "11/2/21", completedate: "11/11/21",
-    type: "IT", status: "Missed"
+    startdate: "11/2/21", completedate: "11/11/21",
+    status: "Missed"
   },
 
   { id: 3876, name: 'Create Killer Robots', 
     description: 'Pretty self explanatory, really.',
-    createdate: "2/3/1989", completedate: "1/1/2040",
-    type: "Evil", status: "Done"
+    startdate: "2/3/1989", completedate: "1/1/2040",
+    status: "Done"
   },
 
   { id: 3877, name: 'Test Employee Dashboard Frontend', 
     description: 'Try to break inputs, look for undefined behavior.', 
-    createdate: "10/11/2022", completedate: "10/13/2022",
-    type: "Dev", status: "In-Progress"
+    startdate: "10/11/2022", completedate: "10/13/2022",
+    status: "In-Progress"
   },
 
   { id: 5, name: 'Spend More Time Outside', 
     description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
-    createdate: "4/12/2020", completedate: "5/16/2023",
-    type: "Personal", status: "In-Progress"
+    startdate: "4/12/2020", completedate: "5/16/2023",
+    status: "In-Progress"
 
   },
 
@@ -85,6 +87,7 @@ const numOfCards = 4;
 
 function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns) {
   const navigate = useNavigate();
+  const [modalShow, setModalShow] = React.useState(false);
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
   
@@ -105,7 +108,11 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
           {curEmployee == loggedInUser ? "Your" : curEmployee.firstname + " " +curEmployee.lastname + "'s"} Goals
         </div>
         <div>
-          <Button className="m-1" variant="success" onClick={()=>navigate('/NewGoal')}>New Goal</Button>
+          <Button className="m-1" variant="success" onClick={()=>setModalShow(true)}>New Goal</Button>
+          <NewGoalModal
+            show={modalShow}
+            onHide={() => setModalShow(false)}
+          />        
         </div>
       </div>
     <DataGrid
@@ -157,13 +164,170 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
   )
 }
 
+function NewGoalModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          New Goal
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="xxx"
+              autoFocus
+              required
+            />
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="exampleForm.ControlTextarea1"
+          >
+            <Form.Label>Description</Form.Label>
+            <Form.Control as="textarea" rows={3} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Start Date</Form.Label>
+            <Form.Control
+              type="date"
+              placeholder="xxx"
+              autoFocus
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Completion Date</Form.Label>
+            <Form.Control
+              type="date"
+              placeholder="xxx"
+              autoFocus
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Status</Form.Label>
+            <Form.Select>
+              <option>Not Started</option>
+              <option>In-Progress</option>
+              <option>Done</option>
+              <option>Missed</option>
+            </Form.Select>
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="exampleForm.ControlTextarea1"
+          >
+            <Form.Label>Comment</Form.Label>
+            <Form.Control as="textarea" rows={3} />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+        <Button variant="success" onClick={props.onHide}>Create</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
+function GoalDetailModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Goal ID
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="xxx"
+              autoFocus
+            />
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="exampleForm.ControlTextarea1"
+          >
+            <Form.Label>Description</Form.Label>
+            <Form.Control as="textarea" rows={3} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Start Date</Form.Label>
+            <Form.Control
+              type="date"
+              placeholder="xxx"
+              autoFocus
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Completion Date</Form.Label>
+            <Form.Control
+              type="date"
+              placeholder="xxx"
+              autoFocus
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Creation Date</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="12/34/5678"
+              autoFocus
+              readOnly
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <Form.Label>Status</Form.Label>
+            <Form.Select>
+              <option>Not Started</option>
+              <option>In-Progress</option>
+              <option>Done</option>
+              <option>Missed</option>
+            </Form.Select>
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="exampleForm.ControlTextarea1"
+          >
+            <Form.Label>Comment</Form.Label>
+            <Form.Control as="textarea" rows={3} />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+        <Button variant="success" onClick={props.onHide}>Save Changes</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 export default function Dashboard() {
   const [selectedGoalIndex,setSelectedGoalIndex] = React.useState(0);
   const [selectedGoals, setSelectedGoals] = React.useState(rows.slice(0,numOfCards));
   const [curEmployee, setCurEmployee] = React.useState(loggedInUser);
   const [curRows, setCurRows] = React.useState(rows);
   const navigate = useNavigate();
-
+  const [modalShow, setModalShow] = React.useState(false);
+  
   const columns = [
 
     { field: 'id', 
@@ -183,20 +347,13 @@ export default function Dashboard() {
       headerName: 'Description', 
       flex: 1,
       description: "More information about what the goal entails",
-      minWidth: 125,
+      minWidth: 110,
     },
   
     {
-      field: 'type',
-      headerName: 'Type',
-      width: 110,
-      description: 'What type of goal this is'
-    },
-  
-    {
-      field: 'createdate',
-      description: 'The date of creation for the goal',
-      headerName: 'Creation Date',
+      field: 'startdate',
+      description: 'The date of start for the goal',
+      headerName: 'Start Date',
       type: 'date',
       valueGetter: ({ value }) => value && new Date(value),
       width: 130,
@@ -229,8 +386,11 @@ export default function Dashboard() {
   
       getActions: (params) => [
 
-        <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => 1} />,
-        
+        <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => setModalShow(true) }/>,
+        <GoalDetailModal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+        />,
         AlertBox(
           {
             deny: "Cancel", 
