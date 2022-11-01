@@ -1,51 +1,58 @@
-.GoalMain {
+  .GoalMain {
     text-align: center;
     padding: 5rem 1rem;
     background-color: #30CEBB;
     min-height: 100vh;
   }
-  .heading{
-    font-family: Times, serif;
-    
-    font-size: 2rem;
 
+  .GoalMain .heading{
+    font-family: Times, serif;
+    font-size: 2rem;
   }
-  .error {
+
+  .GoalMain .error {
     color: #fc8181;
     font-size: 0.75rem;
     text-align: left;
     margin-top: 0.25rem;
   }
   
-  .checkbox {
+  .GoalMain .checkbox {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     margin-top: 1rem;
   }
   
-  nav {
+  .GoalMain nav {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 2rem;
   }
-  nav h3 {
+
+  .GoalMain h3{
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
+  .GoalMain nav h3 {
     margin: 1rem;
     cursor: pointer;
     color: #718096;
   }
-  nav h3:hover {
+
+  .GoalMain nav h3:hover {
     color: white;
   }
   
-  form {
+  .GoalMain form {
     width: 95%;
     max-width: 500px;
     margin: 0 auto;
   }
   
-  form label {
+  .GoalMain form label {
     font-size: 1rem;
     font-weight: bold;
     display: block;
@@ -53,8 +60,7 @@
     margin: 1rem 0 0.2rem;
   }
   
-  input,
-  select {
+  .GoalMain input,.GoalMain textarea, .GoalMain select {
     width: 100%;
     padding: 0.65rem 0.5rem;
     font-size: 1rem;
@@ -65,29 +71,41 @@
     outline: none;
   }
   
-  input:focus,
-  select:focus {
+  .GoalMain input:focus, .GoalMain select:focus {
     border-color: #4299e1;
   }
   
-  input::placeholder,
-  select::placeholder {
+  .GoalMain input::placeholder, .GoalMain select::placeholder {
     color: #a0aec0;
   }
   
-  input[type="checkbox"] {
+  .GoalMain input[type="checkbox"] {
     width: fit-content;
     margin-right: 0.5rem;
-    height:200px;
+    height: 200px;
     transform: scale(1.25);
   }
   
-  button {
+  .GoalMain .submitButton {
     display: block;
     margin: 1rem 0;
     padding: 0.35rem 0.5rem;
     background-color: #4299e1;
-    color: #1a202c;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 3px;
+    width: 100%;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .GoalMain .cancelButton {
+    display: block;
+    margin: 1rem 0;
+    padding: 0.35rem 0.5rem;
+    background-color:  #ffbb33;
+    color: #FFFFFF;
     border: none;
     border-radius: 3px;
     width: 100%;
