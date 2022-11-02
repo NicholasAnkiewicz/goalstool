@@ -1,18 +1,21 @@
-import * as React from 'react';
-import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
-import Button from 'react-bootstrap/Button';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
-import Navbar from 'react-bootstrap/Navbar';
 import logo from './ukglogo.jpg';
-import ManagerDashboard from "./ManagerDashboard.js"
-import { useNavigate, useLocation } from "react-router-dom";
-import Image from 'react-bootstrap/Image';
 import icon from './icon1.png';
-import GoalCard from './components/GoalCard'
+import ManagerDashboard from "./ManagerDashboard.js";
+import GoalCard from './components/GoalCard';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Form from 'react-bootstrap/Form';
+import Image from 'react-bootstrap/Image';
+import Navbar from 'react-bootstrap/Navbar';
+import Modal from 'react-bootstrap/Modal';
+import ToggleButton from 'react-bootstrap/ToggleButton';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import IconButton from '@mui/material/IconButton';
-import { darken, lighten } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -22,51 +25,46 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { darken, lighten } from '@mui/material/styles';
+import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import AlertBox from './components/AlertBox.js';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-
-import {
-  GridActionsCellItem,
-  GridRowId,
-  GridColumns,
-} from '@mui/x-data-grid';
+import ListGroup from 'react-bootstrap/ListGroup';
+import { GridActionsCellItem, GridRowId, GridColumns } from '@mui/x-data-grid';
 
 
 //Sample Data
 let rows = [
 
   {
-    id: 298, name: 'Purchase New Coffee Machine',
+    id: 298, title: 'Purchase New Coffee Machine',
     description: 'Jon says Keurig is preferred!',
     startdate: "9/26/2021", completedate: "10/27/2021",
     status: "In-Progress"
   },
 
   {
-    id: 62, name: 'Set Up New Laptops',
+    id: 62, title: 'Set Up New Laptops',
     description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? I am now going to write a bunch more here to test whether or not anything breaks when a verrrrry long description is used. This should roughly be the maximum length of a description, right?',
-    type: "IT", status: "Missed",
     startdate: "11/2/21", completedate: "11/11/21",
+    status: "Missed",
   },
 
-  { id: 3876, name: 'Create Killer Robots', 
+  { id: 3876, title: 'Create Killer Robots', 
     description: 'Pretty self explanatory, really.',
     startdate: "2/3/1989", completedate: "1/1/2040",
     status: "Done"
   },
 
-  { id: 3877, name: 'Test Employee Dashboard Frontend', 
+  { id: 3877, title: 'Test Employee Dashboard Frontend', 
     description: 'Try to break inputs, look for undefined behavior.', 
     startdate: "10/11/2022", completedate: "10/13/2022",
-    status: "In-Progress"
+    status: "Not-Started"
   },
 
-  { id: 5, name: 'Spend More Time Outside', 
+  { id: 5, title: 'Spend More Time Outside', 
     description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
     startdate: "4/12/2020", completedate: "5/16/2023",
     status: "In-Progress"
-
   },
 
 ];
@@ -87,7 +85,6 @@ let loggedInUser = {
 const numOfCards = 4;
 
 function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns) {
-  const navigate = useNavigate();
   const [modalShow, setModalShow] = React.useState(false);
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
@@ -99,10 +96,10 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
     const date = new Date(+year, month - 1, +day);
     return date.getTime() > today.getTime() ? true : false
   }
+  // Above code not in use
 
   return (
     <div style={{ height: 450, width: '100%' }}>
-
       <div className="p-1 d-flex justify-content-between align-items-center">
         <div className="fw-bold fs-2" style={{color: '#005151'}}  >
         <Image height="50" src={icon}/>
@@ -116,116 +113,136 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
           />        
         </div>
       </div>
-    <DataGrid
-      rows={curRows}
-      columns={columns}
-      onRowClick={
-        (params, event, details) => {
-          if (!selectedRows.includes(params.row)){
-            let temp = [...selectedRows];
-            temp[selectedGoalIndex] = params.row;
-            if (selectedGoalIndex+1 == selectedRows.length){
-              selectedGoalIndex=-1;
+      <DataGrid
+        rows={curRows}
+        columns={columns}
+        onRowClick={
+          (params, event, details) => {
+            if (!selectedRows.includes(params.row)){
+              let temp = [...selectedRows];
+              temp[selectedGoalIndex] = params.row;
+              if (selectedGoalIndex+1 == selectedRows.length){
+                selectedGoalIndex=-1;
+              }
+              setSelectedGoalIndex(selectedGoalIndex+1);
+              setSelectedRows(temp);
             }
-            setSelectedGoalIndex(selectedGoalIndex+1);
-            setSelectedRows(temp);
           }
-      }}
-      
-      components={{ Toolbar: () => 
-        <Box sx = {{ p: 0.5, pb: 0, }} > <GridToolbarQuickFilter /> </Box> }}
-
-      initialState={{
-        sorting: {
-          sortModel: [{ field: 'status', sort: 'desc'}],
-        },
-      }}
-
-      pageSize={10}
-      rowsPerPageOptions={[6]}
-      checkboxSelection={false}
-      sx={{
-        '& .super-app-theme--Done': {backgroundColor: 'rgba(0, 0, 0, 0.14)', color: 'text.disabled',
-          '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 0, 0, 0.14)'),}},
-        '& .super-app-theme--In-Progress': {backgroundColor: 'rgba(0, 255, 0, 0.24)',
-          '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 0, 0.24)')}},
-        '& .super-app-theme--Missed': {backgroundColor: 'rgba(255, 0, 0, .12)',
-          '&:hover': {bgcolor: getHoverBackgroundColor('rgba(255, 0, 0, .12)')}},
-      }}
-      getRowClassName={(params) => `super-app-theme--${params.row.status}`}
-    />
+        }
+        components={{ Toolbar: () => 
+          <Box sx = {{ p: 0.5, pb: 0, }} > <GridToolbarQuickFilter /> </Box> 
+        }}
+        initialState={{
+          sorting: {
+            sortModel: [{ field: 'status', sort: 'desc'}],
+          },
+        }}
+        pageSize={10}
+        rowsPerPageOptions={[6]}
+        checkboxSelection={false}
+        sx={{
+          '& .super-app-theme--Not-Started': {backgroundColor: 'rgba(0, 255, 255, 0.25)',
+            '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 255, 0.5)')}},
+          '& .super-app-theme--In-Progress': {backgroundColor: 'rgba(0, 255, 0, 0.25)',
+            '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 0, 0.5)')}},
+          '& .super-app-theme--Done': {backgroundColor: 'rgba(0, 0, 0, 0.25)', color: 'text.disabled',
+            '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 0, 0, 0.5)'),}},
+          '& .super-app-theme--Missed': {backgroundColor: 'rgba(255, 0, 0, 0.25)',
+            '&:hover': {bgcolor: getHoverBackgroundColor('rgba(255, 0, 0, 0.5)')}},
+        }}
+        getRowClassName={(params) => `super-app-theme--${params.row.status}`}
+      />
       <TableRow sx={{width: '100%'}}>
         {selectedRows.map((GoalsRow) => (
           <TableCell sx={{height: "350px", width: "25%"}}>
             {GoalCard(GoalsRow,curEmployee)}
           </TableCell>
-              ))}   
+        ))}   
       </TableRow>
-  </div>
+    </div>
   )
 }
 
 function NewGoalModal(props) {
+  const [radioValue, setRadioValue] = useState(false);
+  const radios = [
+    { name: 'Not Started', value: '1' },
+    { name: 'In-progress', value: '2' },
+    { name: 'Done', value: '3' },
+    { name: 'Missed', value: '4' },
+  ];
+  const variant = [
+    'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
+  ];
+
   return (
     <Modal
       {...props}
       size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
+      aria-labelledby="newGoalModal"
       centered
     >
       <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
+        <Modal.Title id="newGoalModal">
           New Goal
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
-        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="xxx"
-              autoFocus
-              required
-            />
+          <Form.Group className="mb-3" controlId="newGoalDescription">
+              <Form.Label>Title</Form.Label>
+              <Form.Control
+                type="text"
+                autoFocus
+                required
+              />
           </Form.Group>
           <Form.Group
             className="mb-3"
-            controlId="exampleForm.ControlTextarea1"
+            controlId="newGoal"
           >
             <Form.Label>Description</Form.Label>
             <Form.Control as="textarea" rows={3} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3" controlId="newGoalStartDate">
             <Form.Label>Start Date</Form.Label>
             <Form.Control
               type="date"
-              placeholder="xxx"
               autoFocus
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3" controlId="newGoalCompletionDate">
             <Form.Label>Completion Date</Form.Label>
             <Form.Control
               type="date"
-              placeholder="xxx"
               autoFocus
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Form.Label>Status</Form.Label>
-            <Form.Select>
-              <option>Not Started</option>
-              <option>In-Progress</option>
-              <option>Done</option>
-              <option>Missed</option>
-            </Form.Select>
+          <Form.Group className="mb-3" controlId="newGoalStatus">
+            <Form.Label>Status</Form.Label><br/>
+            <ButtonGroup>
+              {radios.map((radio, idx) => (
+                <ToggleButton
+                  key={idx}
+                  id={`radio-${idx}`}
+                  type="radio"
+                  variant={variant[idx]}
+                  name="radio"
+                  value={radio.value}
+                  checked={radioValue === radio.value}
+                  onChange={(e) => setRadioValue(e.currentTarget.value)}
+                  required
+                >
+                  {radio.name}
+                </ToggleButton>
+              ))}
+            </ButtonGroup>
           </Form.Group>
           <Form.Group
             className="mb-3"
-            controlId="exampleForm.ControlTextarea1"
+            controlId="newGoalComment"
           >
             <Form.Label>Comment</Form.Label>
             <Form.Control as="textarea" rows={3} />
@@ -234,59 +251,70 @@ function NewGoalModal(props) {
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={props.onHide}>Close</Button>
-        <Button variant="success" onClick={props.onHide}>Create</Button>
+        <Button variant="success" type="submit" onClick={() => null}>Create</Button>
       </Modal.Footer>
     </Modal>
   );
 }
 
 function GoalDetailModal(props) {
+  const [radioValue, setRadioValue] = useState('2');
+  const radios = [
+    { name: 'Not Started', value: '1' },
+    { name: 'In-progress', value: '2' },
+    { name: 'Done', value: '3' },
+    { name: 'Missed', value: '4' },
+  ];
+  const variant = [
+    'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
+  ];
+
   return (
     <Modal
       {...props}
       size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
+      aria-labelledby="goalDetailModal"
       centered
     >
       <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
+        <Modal.Title id="goalDetailModal">
           Goal ID
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
-        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+        <Form.Group className="mb-3" controlId="goalDetailTitle">
             <Form.Label>Title</Form.Label>
             <Form.Control
               type="text"
-              placeholder="xxx"
               autoFocus
+              required
             />
           </Form.Group>
           <Form.Group
             className="mb-3"
-            controlId="exampleForm.ControlTextarea1"
+            controlId="goalDetailDescription"
           >
             <Form.Label>Description</Form.Label>
             <Form.Control as="textarea" rows={3} />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3" controlId="goalDetailStartDate">
             <Form.Label>Start Date</Form.Label>
             <Form.Control
               type="date"
-              placeholder="xxx"
               autoFocus
+              required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3" controlId="goalDetailCompletionDate">
             <Form.Label>Completion Date</Form.Label>
             <Form.Control
               type="date"
-              placeholder="xxx"
               autoFocus
+              required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3" controlId="goalDetailCreationDate">
             <Form.Label>Creation Date</Form.Label>
             <Form.Control
               type="text"
@@ -295,27 +323,51 @@ function GoalDetailModal(props) {
               readOnly
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Form.Label>Status</Form.Label>
-            <Form.Select>
-              <option>Not Started</option>
-              <option>In-Progress</option>
-              <option>Done</option>
-              <option>Missed</option>
-            </Form.Select>
+          <Form.Group className="mb-3" controlId="goalDetailStatus">
+            <Form.Label>Status</Form.Label><br/>
+            <ButtonGroup>
+              {radios.map((radio, idx) => (
+                <ToggleButton
+                  key={idx}
+                  id={`radio-${idx}`}
+                  type="radio"
+                  variant={variant[idx]}
+                  name="radio"
+                  value={radio.value}
+                  checked={radioValue === radio.value}
+                  onChange={(e) => setRadioValue(e.currentTarget.value)}
+                  required
+                >
+                  {radio.name}
+                </ToggleButton>
+              ))}
+            </ButtonGroup>
           </Form.Group>
           <Form.Group
             className="mb-3"
-            controlId="exampleForm.ControlTextarea1"
+            controlId="goalDetailManagerComment"
+          > 
+            <Badge bg="danger" pill>!</Badge>
+            <Form.Label>Manager Comment</Form.Label>
+            <Form.Control as="textarea" rows={3} readOnly>
+              Good job!
+            </Form.Control>
+            <Form.Text>Last edited on </Form.Text>
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="goalDetailComment"
           >
             <Form.Label>Comment</Form.Label>
-            <Form.Control as="textarea" rows={3} />
+            <Form.Control as="textarea" rows={3}>
+              I think so.
+            </Form.Control>
           </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={props.onHide}>Close</Button>
-        <Button variant="success" onClick={props.onHide}>Save Changes</Button>
+        <Button variant="success" type="submit" onClick={() => null}>Save Changes</Button>
       </Modal.Footer>
     </Modal>
   );
@@ -339,20 +391,23 @@ export default function Dashboard() {
   
   const columns = [
 
-    { field: 'id', 
+    { 
+      field: 'id', 
       headerName: 'ID', 
       width: 80,
       description: "The goal's unique 'id'entifier, or ID"
     },
   
-    { field: 'name', 
-      headerName: 'Name', 
+    { 
+      field: 'title', 
+      headerName: 'Title', 
       flex: 0.5,
       description: "What the goal is!",
       minWidth: 200,
     },
   
-    { field: 'description', 
+    { 
+      field: 'description', 
       headerName: 'Description', 
       flex: 1,
       description: "More information about what the goal entails",
@@ -379,7 +434,7 @@ export default function Dashboard() {
   
     {
       field: 'status',
-      description: 'Done/In-Progress/Missed',
+      description: 'Not-Started/In-Progress/Done/Missed',
       headerName: 'Status',
       width: 120,
     },
@@ -417,6 +472,7 @@ export default function Dashboard() {
       ]
     
     },
+
     {
       field: "Archive",
       type: 'actions',
@@ -447,6 +503,7 @@ export default function Dashboard() {
           () => 1,
           <DeleteIcon color="warning"/>,
         )
+
       ]
     
     }
@@ -454,9 +511,9 @@ export default function Dashboard() {
   ];
 
   return (
+
     <div>
       <Navbar style={{backgroundColor: '#005151'}}>
-        
           <Navbar.Brand style={{paddingLeft: '6%'}}className="fw-bold fs-3 navbar-light" href="#home">
             <Image className="me-2 rounded mx-auto" src={logo} height="50" alt="Employee logo" />
             Dashboard
@@ -473,7 +530,6 @@ export default function Dashboard() {
             <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
               Signed in as <Button style={{marginRight: '5px'}} className="btn-md"><strong>{loggedInUser.firstname}</strong></Button>
               ID: {loggedInUser.eid}
-
             <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
 
             </Navbar.Text>
@@ -482,6 +538,7 @@ export default function Dashboard() {
       <div>
         {EmployeeDashboard(selectedGoals,setSelectedGoals,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns)}
         <div>
+
           <br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/>
           <br/><br/>
@@ -490,7 +547,6 @@ export default function Dashboard() {
           {loggedInUser.isManager ? ManagerDashboard(setCurEmployee,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards) : "(not a manager)"}
           </div>
         </div>
-
       </div>
     </div>
 

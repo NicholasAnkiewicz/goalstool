@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
@@ -17,6 +17,12 @@ import Image from 'react-bootstrap/Image';
 import icon from './icon2.png';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import PersonIcon from '@mui/icons-material/Person';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
 
 function createData(firstname, lastname, id, title) {
   return {
@@ -28,24 +34,138 @@ function createData(firstname, lastname, id, title) {
     goals: [
       {
         id: 235,
-        createdate: '2020/01/05',
+        startdate: '2020/01/05',
         completedate: '2021/01/05',
-        name: 'Test Employee Dashboard Frontend',
+        title: 'Test Employee Dashboard Frontend',
         description: "Try to break inputs, look for undefined behavior.",
-        type: "Dev",
         status: "Done",
       },
       {
         id: 292,
-        createdate: '2020/01/02',
+        startdate: '2020/01/02',
         completedate: '2021/01/02',
-        name: 'Spend More Time Outside',
+        title: 'Spend More Time Outside',
         description: "Vitamin D, fresh air, exercise! Before it gets cold. ",
-        type: "Personal",
         status: "In-Progress",
       },
     ],
   };
+}
+
+function GoalDetailModal(props) {
+  const [radioValue, setRadioValue] = useState('2');
+  const radios = [
+    { name: 'Not Started', value: '1' },
+    { name: 'In-progress', value: '2' },
+    { name: 'Done', value: '3' },
+    { name: 'Missed', value: '4' },
+  ];
+  const variant = [
+    'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
+  ];
+
+  return (
+    <Modal
+      {...props}
+      size="lg"
+      aria-labelledby="goalDetailModal"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="goalDetailModal">
+          Goal ID
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+        <Form.Group className="mb-3" controlId="goalDetailTitle">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              autoFocus
+              required
+            />
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="goalDetailDescription"
+          >
+            <Form.Label>Description</Form.Label>
+            <Form.Control as="textarea" rows={3} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="goalDetailStartDate">
+            <Form.Label>Start Date</Form.Label>
+            <Form.Control
+              type="date"
+              autoFocus
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="goalDetailCompletionDate">
+            <Form.Label>Completion Date</Form.Label>
+            <Form.Control
+              type="date"
+              autoFocus
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="goalDetailCreationDate">
+            <Form.Label>Creation Date</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="12/34/5678"
+              autoFocus
+              readOnly
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="goalDetailStatus">
+            <Form.Label>Status</Form.Label><br/>
+            <ButtonGroup>
+              {radios.map((radio, idx) => (
+                <ToggleButton
+                  key={idx}
+                  id={`radio-${idx}`}
+                  type="radio"
+                  variant={variant[idx]}
+                  name="radio"
+                  value={radio.value}
+                  checked={radioValue === radio.value}
+                  onChange={(e) => setRadioValue(e.currentTarget.value)}
+                  required
+                >
+                  {radio.name}
+                </ToggleButton>
+              ))}
+            </ButtonGroup>
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="goalDetailManagerComment"
+          > 
+            <Badge bg="danger" pill>!</Badge>
+            <Form.Label>Manager Comment</Form.Label>
+            <Form.Control as="textarea" rows={3} readOnly>
+              Good job!
+            </Form.Control>
+            <Form.Text>Last edited on </Form.Text>
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="goalDetailComment"
+          >
+            <Form.Label>Comment</Form.Label>
+            <Form.Control as="textarea" rows={3}>
+              I think so.
+            </Form.Control>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Close</Button>
+        <Button variant="success" type="submit" onClick={() => null}>Save Changes</Button>
+      </Modal.Footer>
+    </Modal>
+  );
 }
 
 function Row(props) {
@@ -56,7 +176,7 @@ function Row(props) {
   const { setSelectedGoalIndex } = props;
   const { numOfCards } = props;
   const [open, setOpen] = React.useState(false);
-
+//  const [modalShow, setModalShow] = React.useState(false);
 
   return (
     <React.Fragment>
@@ -96,29 +216,29 @@ function Row(props) {
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Goal Name</TableCell>
-                    <TableCell>Creation Date</TableCell>
+                    <TableCell>Goal Title</TableCell>
+                    <TableCell>Start Date</TableCell>
+                    <TableCell>Completion Date</TableCell>
                     <TableCell>Description</TableCell>
-                    <TableCell>Type</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {row.goals.map((GoalsRow) => (
-                    <TableRow key={GoalsRow.goalname}>
+                    <TableRow key={GoalsRow.goaltitle}>
                       <TableCell component="th" scope="row">
                         <IconButton size="small" onClick={() => 1}>
                           {<ReviewsIcon color="primary"/>}
                         </IconButton>
-                        {GoalsRow.name}
+                        {GoalsRow.title}
                       </TableCell>
                       <TableCell>
-                        {GoalsRow.createdate} 
+                        {GoalsRow.startdate} 
+                      </TableCell>
+                      <TableCell>
+                        {GoalsRow.completedate}
                       </TableCell>
                       <TableCell>
                         {GoalsRow.description}
-                      </TableCell>
-                      <TableCell>
-                        {GoalsRow.type}
                       </TableCell>
                     </TableRow>
                   ))}
