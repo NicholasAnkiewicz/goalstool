@@ -26,7 +26,7 @@ export default function GoalCard(goal,employee) {
               {<ReviewsIcon size="lg" color="primary"/>}
             </IconButton>
           }
-          title={"(" + goal.id + ") " + goal.name}
+          title={"(" + goal.id + ") " + goal.title}
           subheader={employee.firstname + " " + employee.lastname}
         />
         <CardContent sx={{height: '200px'}}>

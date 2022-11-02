@@ -147,7 +147,7 @@ function GoalDetailModal(props) {
             <Form.Control as="textarea" rows={3} readOnly>
               Good job!
             </Form.Control>
-            <Form.Text>Last edited on </Form.Text>
+            <Form.Text>Last edited on 02/11/2022</Form.Text>
           </Form.Group>
           <Form.Group
             className="mb-3"
