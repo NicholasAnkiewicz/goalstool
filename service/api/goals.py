@@ -1,11 +1,51 @@
 from fastapi import APIRouter
 
+from typing import List
+
+from fastapi import APIRouter, Depends
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.orm import Session
+
+from . import get_db
+
+import models
+import schemas
+import random
+
 goals_router = APIRouter()
 
-fake_goals = [
-    {"title": "Goal 1", "description": "This is a test goal", "assignee_id": "abc123", "manager_id": "xyz456", "status": "To Do"}, {"title": "Goal 2", "description": "This is the second test goal", "assignee_id": "mno234", "manager_id": "xyz456", "status": "In Progress"}, {"title": "Goal 3", "description": "This is the third goal", "assignee_id": "abc123", "manager_id": "xyz456", "status": "Completed"}, {"title": "Goal 4", "description": "This is another test goal", "assignee_id": "xyz456", "manager_id": "ceo999", "status": "To Do"}
-]
+@goals_router.get("/goals", response_model=List[schemas.Goal])
+async def get_goals(sess: Session=Depends(get_db)):
+    return sess.query(models.Goal).all()
 
-@goals_router.get("/goals")
-async def get_goals():
-    return fake_goals
+@goals_router.post("/goals", status_code=201)
+async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
+    item.id = random.randint(0, 999999)
+    SQLitem = models.Goal(
+        id=item.id,
+        title=item.title,
+        description=item.description,
+        assignee_id=item.assignee_id,
+        status=item.status,
+        start_date=item.start_date,
+        end_date = item.end_date
+    )
+    Session.add(SQLitem)
+    Session.commit()
+    return item
+'''
+@goals_router.get("/goals/demo", response_model=schemas.Goal)
+async def seed_test_goal(sess: Session=Depends(get_db)):
+    goal = models.Goal(
+            title="Demo this route :p",
+            description="This is a dummy goal. The purpose of this goal is to create a goal row in the database for the demo on Thursday. This seed will be replaced by a POST route for the frontend to use",
+            assignee_id=1,
+            status=models.GoalStatus.to_do,
+            start_date=(datetime.date.today() + datetime.timedelta(days=1))
+            )
+    sess.add(goal)
+    sess.commit()
+
+    sess.refresh(goal)
+    return goal
+'''
