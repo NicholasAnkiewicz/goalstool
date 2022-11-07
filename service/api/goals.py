@@ -20,6 +20,7 @@ async def get_goals(sess: Session=Depends(get_db)):
 
 @goals_router.post("/goals", status_code=201)
 async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
+    print(item)
     item.id = random.randint(0, 999999)
     SQLitem = models.Goal(
         id=item.id,
