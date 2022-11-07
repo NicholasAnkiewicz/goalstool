@@ -34,138 +34,22 @@ function createData(firstname, lastname, id, title) {
     goals: [
       {
         id: 235,
-        startdate: '2020/01/05',
-        completedate: '2021/01/05',
+        startdate: '2020-01-05', createdate: '2020-02-01',
+        completedate: '2021-01-05',
         title: 'Test Employee Dashboard Frontend',
         description: "Try to break inputs, look for undefined behavior.",
         status: "Done",
       },
       {
         id: 292,
-        startdate: '2020/01/02',
-        completedate: '2021/01/02',
+        startdate: '2020-01-02', createdate: '2020-01-02',
+        completedate: '2021-01-02',
         title: 'Spend More Time Outside',
         description: "Vitamin D, fresh air, exercise! Before it gets cold. ",
         status: "In-Progress",
       },
     ],
   };
-}
-
-function GoalDetailModal(props) {
-  const [radioValue, setRadioValue] = useState('2');
-  const radios = [
-    { name: 'Not Started', value: '1' },
-    { name: 'In-progress', value: '2' },
-    { name: 'Done', value: '3' },
-    { name: 'Missed', value: '4' },
-  ];
-  const variant = [
-    'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
-  ];
-
-  return (
-    <Modal
-      {...props}
-      size="lg"
-      aria-labelledby="goalDetailModal"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="goalDetailModal">
-          Goal ID
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-        <Form.Group className="mb-3" controlId="goalDetailTitle">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              type="text"
-              autoFocus
-              required
-            />
-          </Form.Group>
-          <Form.Group
-            className="mb-3"
-            controlId="goalDetailDescription"
-          >
-            <Form.Label>Description</Form.Label>
-            <Form.Control as="textarea" rows={3} />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="goalDetailStartDate">
-            <Form.Label>Start Date</Form.Label>
-            <Form.Control
-              type="date"
-              autoFocus
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="goalDetailCompletionDate">
-            <Form.Label>Completion Date</Form.Label>
-            <Form.Control
-              type="date"
-              autoFocus
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="goalDetailCreationDate">
-            <Form.Label>Creation Date</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="12/34/5678"
-              autoFocus
-              readOnly
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="goalDetailStatus">
-            <Form.Label>Status</Form.Label><br/>
-            <ButtonGroup>
-              {radios.map((radio, idx) => (
-                <ToggleButton
-                  key={idx}
-                  id={`radio-${idx}`}
-                  type="radio"
-                  variant={variant[idx]}
-                  name="radio"
-                  value={radio.value}
-                  checked={radioValue === radio.value}
-                  onChange={(e) => setRadioValue(e.currentTarget.value)}
-                  required
-                >
-                  {radio.name}
-                </ToggleButton>
-              ))}
-            </ButtonGroup>
-          </Form.Group>
-          <Form.Group
-            className="mb-3"
-            controlId="goalDetailManagerComment"
-          > 
-            <Badge bg="danger" pill>!</Badge>
-            <Form.Label>Manager Comment</Form.Label>
-            <Form.Control as="textarea" rows={3} readOnly>
-              Good job!
-            </Form.Control>
-            <Form.Text>Last edited on 02/11/2022</Form.Text>
-          </Form.Group>
-          <Form.Group
-            className="mb-3"
-            controlId="goalDetailComment"
-          >
-            <Form.Label>Comment</Form.Label>
-            <Form.Control as="textarea" rows={3}>
-              I think so.
-            </Form.Control>
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-        <Button variant="success" type="submit" onClick={() => null}>Save Changes</Button>
-      </Modal.Footer>
-    </Modal>
-  );
 }
 
 function Row(props) {
@@ -176,7 +60,6 @@ function Row(props) {
   const { setSelectedGoalIndex } = props;
   const { numOfCards } = props;
   const [open, setOpen] = React.useState(false);
-//  const [modalShow, setModalShow] = React.useState(false);
 
   return (
     <React.Fragment>
@@ -224,12 +107,13 @@ function Row(props) {
                 </TableHead>
                 <TableBody>
                   {row.goals.map((GoalsRow) => (
-                    <TableRow key={GoalsRow.goaltitle}>
+                    <TableRow key={GoalsRow.id}>
                       <TableCell component="th" scope="row">
-                        <IconButton size="small" onClick={() => 1}>
+                        <IconButton size="small" onClick={() => { props.setCurRow(GoalsRow); props.setModal(true) }}>
                           {<ReviewsIcon color="primary"/>}
+                           {GoalsRow.title}
                         </IconButton>
-                        {GoalsRow.title}
+                       
                       </TableCell>
                       <TableCell>
                         {GoalsRow.startdate} 
@@ -265,7 +149,7 @@ Row.propTypes = {
     goals: PropTypes.arrayOf(
       PropTypes.shape({
         description: PropTypes.string.isRequired,
-        goalname: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
         createdate: PropTypes.string.isRequired,
       }),
     ).isRequired,
@@ -279,7 +163,7 @@ const rows = [
   createData('Eclair','', 262, "Engineer"),
 ];
 
-export default function ManagerDashboard(setCurUser, setCurRows, setSelectedGoals, setSelectedGoalIndex, numOfCards) {
+export default function ManagerDashboard(setCurUser, setCurRows, setSelectedGoals, setSelectedGoalIndex, numOfCards, setModal, setCurRow) {
   return (
     <box style={{width:"100%"}}>
     <br/>
@@ -301,8 +185,8 @@ export default function ManagerDashboard(setCurUser, setCurRows, setSelectedGoal
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <Row key={row.name} 
-              row={row} 
+            <Row key={row.id}
+              row={row} setModal={setModal} setCurRow={setCurRow}
               setCurUser={setCurUser} setCurRows={setCurRows} 
               setSelectedGoals={setSelectedGoals} setSelectedGoalIndex={setSelectedGoalIndex}
               numOfCards={numOfCards}/>

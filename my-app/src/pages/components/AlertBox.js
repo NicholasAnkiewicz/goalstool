@@ -5,6 +5,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 import {
   GridActionsCellItem,
@@ -45,10 +47,8 @@ export default function AlertDialog(messageContent,acceptHandler,denyHandler,ico
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleClose(denyHandler)}>{messageContent.deny}</Button>
-          <Button onClick={() => handleAccept(acceptHandler)} autoFocus>
-            {messageContent.accept}
-          </Button>
+          <Button color="warning" onClick={() => handleClose(denyHandler)}>{messageContent.deny}</Button>
+            <Button onClick={() => handleAccept(acceptHandler)} autoFocus>{messageContent.accept}</Button>
         </DialogActions>
       </Dialog>
     

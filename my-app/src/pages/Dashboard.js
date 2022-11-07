@@ -24,47 +24,52 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { darken, lighten } from '@mui/material/styles';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import AlertBox from './components/AlertBox.js';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { GridActionsCellItem, GridRowId, GridColumns } from '@mui/x-data-grid';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 
 //Sample Data
+let totalGoals = 10;
 let rows = [
 
   {
     id: 298, title: 'Purchase New Coffee Machine',
     description: 'Jon says Keurig is preferred!',
-    startdate: "9/26/2021", completedate: "10/27/2021",
-    status: "In-Progress"
+    startdate: '2022-10-27', completedate: "2021-10-28", 
+    status: "In-Progress", createdate: '2020-08-20',
   },
 
   {
     id: 62, title: 'Set Up New Laptops',
     description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? I am now going to write a bunch more here to test whether or not anything breaks when a verrrrry long description is used. This should roughly be the maximum length of a description, right?',
-    startdate: "11/2/21", completedate: "11/11/21",
-    status: "Missed",
+    startdate: "2021-11-02", completedate: "2021-11-11",
+    status: "Missed", createdate: '2020-08-20',
   },
 
   { id: 3876, title: 'Create Killer Robots', 
     description: 'Pretty self explanatory, really.',
-    startdate: "2/3/1989", completedate: "1/1/2040",
-    status: "Done"
+    startdate: "1989-02-03", completedate: "2040-01-01",
+    status: "Done", createdate: '2020-08-20',
   },
 
   { id: 3877, title: 'Test Employee Dashboard Frontend', 
     description: 'Try to break inputs, look for undefined behavior.', 
-    startdate: "10/11/2022", completedate: "10/13/2022",
-    status: "Not-Started"
+    startdate: "2022-10-11", completedate: "2022-10-13",
+    status: "Not-Started", createdate: '2020-08-20',
   },
 
   { id: 5, title: 'Spend More Time Outside', 
     description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
-    startdate: "4/12/2020", completedate: "5/16/2023",
-    status: "In-Progress"
+    startdate: "2020-04-13", completedate: "2023-05-16",
+    status: "In-Progress", createdate: '2020-08-20',
   },
 
 ];
@@ -82,9 +87,11 @@ let loggedInUser = {
   password: "password",
 }
 
+
+
 const numOfCards = 4;
 
-function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns) {
+function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns,setCurRows,setSelectedGoal,showModal) {
   const [modalShow, setModalShow] = React.useState(false);
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
@@ -99,7 +106,7 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
   // Above code not in use
 
   return (
-    <div style={{ height: 450, width: '100%' }}>
+    <div style={{  height: 410, width: '100%' }}>
       <div className="p-1 d-flex justify-content-between align-items-center">
         <div className="fw-bold fs-2" style={{color: '#005151'}}  >
         <Image height="50" src={icon}/>
@@ -108,6 +115,8 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
         <div>
           <Button className="m-1" variant="success" onClick={()=>setModalShow(true)}>New Goal</Button>
           <NewGoalModal
+            setCurRows={setCurRows}
+            curRows={curRows}
             show={modalShow}
             onHide={() => setModalShow(false)}
           />        
@@ -137,8 +146,8 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
             sortModel: [{ field: 'status', sort: 'desc'}],
           },
         }}
-        pageSize={10}
-        rowsPerPageOptions={[6]}
+        pageSize={5}
+        rowsPerPageOptions={[5]}
         checkboxSelection={false}
         sx={{
           '& .super-app-theme--Not-Started': {backgroundColor: 'rgba(0, 255, 255, 0.25)',
@@ -155,7 +164,7 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
       <TableRow sx={{width: '100%'}}>
         {selectedRows.map((GoalsRow) => (
           <TableCell sx={{height: "350px", width: "25%"}}>
-            {GoalCard(GoalsRow,curEmployee)}
+            {GoalCard(GoalsRow,curEmployee,() =>{setSelectedGoal(GoalsRow); showModal(true)  } )}
           </TableCell>
         ))}   
       </TableRow>
@@ -164,10 +173,11 @@ function EmployeeDashboard(selectedRows,setSelectedRows,curEmployee,curRows,sele
 }
 
 function NewGoalModal(props) {
-  const [radioValue, setRadioValue] = useState(false);
+  const [validated, setValidated] = useState(false);
+  const [radioValue, setRadioValue] = useState('1');
   const radios = [
     { name: 'Not Started', value: '1' },
-    { name: 'In-progress', value: '2' },
+    { name: 'In-Progress', value: '2' },
     { name: 'Done', value: '3' },
     { name: 'Missed', value: '4' },
   ];
@@ -175,9 +185,44 @@ function NewGoalModal(props) {
     'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
   ];
 
+  const onFormSubmit = e => {
+    e.preventDefault();
+    const formData = new FormData(e.target),
+    formDataObj = Object.fromEntries(formData.entries())
+    formDataObj.id = Math.floor(Math.random() * 1000000000);
+    let r = radios.reduce( (prev, cur, i) => cur.value===radioValue?cur.name:prev,"N/A");
+    formDataObj.status = r;
+
+
+    const postObject = {
+      title: formDataObj.title,
+      description: formDataObj.description,
+      assignee_id: loggedInUser.eid,
+      status: formDataObj.status,
+      start_date: new Date(formDataObj.startdate),
+      end_date: new Date(formDataObj.completedate),
+    }
+    fetch("http://localhost:8000/goals", {
+      method: "POST",
+      headers: { "content-type" : "application/json"},
+      body: JSON.stringify(postObject)
+
+    })
+
+    const newRows = [formDataObj].concat(props.curRows);
+    props.setCurRows(newRows);
+    props.onHide();
+  };
+
+  const onClose = () => {
+    setRadioValue('1');
+    props.onHide();
+  }
+
   return (
     <Modal
       {...props}
+      onHide={onClose}
       size="lg"
       aria-labelledby="newGoalModal"
       centered
@@ -188,38 +233,51 @@ function NewGoalModal(props) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form>
+        <Form onSubmit={onFormSubmit}>
           <Form.Group className="mb-3" controlId="newGoalDescription">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                autoFocus
-                required
-              />
+              <FloatingLabel controlID="floatingInputGrid" label="Title">
+                <Form.Control
+                  name = "title"
+                  type="text"
+                  required
+                  placeholder=""
+                />
+              </FloatingLabel>
           </Form.Group>
           <Form.Group
             className="mb-3"
             controlId="newGoal"
           >
-            <Form.Label>Description</Form.Label>
-            <Form.Control as="textarea" rows={3} />
+            <FloatingLabel controlID="floatingInputGrid" label="Description">
+              <Form.Control required 
+                name="description" 
+                as="textarea" 
+                style={{height: '160px'}} 
+                placeholder=""
+              />
+            </FloatingLabel>
           </Form.Group>
+          <Row><Col>
           <Form.Group className="mb-3" controlId="newGoalStartDate">
             <Form.Label>Start Date</Form.Label>
             <Form.Control
+              name = "startdate"
               type="date"
-              autoFocus
               required
             />
           </Form.Group>
+          </Col>
+          <Col>
           <Form.Group className="mb-3" controlId="newGoalCompletionDate">
             <Form.Label>Completion Date</Form.Label>
             <Form.Control
+              name="completedate"
               type="date"
-              autoFocus
               required
             />
           </Form.Group>
+          </Col>
+          </Row>
           <Form.Group className="mb-3" controlId="newGoalStatus">
             <Form.Label>Status</Form.Label><br/>
             <ButtonGroup>
@@ -245,84 +303,163 @@ function NewGoalModal(props) {
             controlId="newGoalComment"
           >
             <Form.Label>Comment</Form.Label>
-            <Form.Control as="textarea" rows={3} />
+            <Form.Control name="comment" as="textarea" rows={3} />
           </Form.Group>
+          <Modal.Footer>
+        <Button onClick={onClose}>Close</Button>
+        <Button variant="success" type="submit"> Create</Button>
+      </Modal.Footer>
         </Form>
       </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-        <Button variant="success" type="submit" onClick={() => null}>Create</Button>
-      </Modal.Footer>
+      
     </Modal>
   );
 }
 
 function GoalDetailModal(props) {
-  const [radioValue, setRadioValue] = useState('2');
+  const row = props.row;
   const radios = [
-    { name: 'Not Started', value: '1' },
-    { name: 'In-progress', value: '2' },
+    { name: 'Not-Started', value: '1' },
+    { name: 'In-Progress', value: '2' },
     { name: 'Done', value: '3' },
     { name: 'Missed', value: '4' },
   ];
+  const [changed, setChanged] = useState(false);
+  const [radioValue, setRadioValue] = useState('-1');
+  let newRadio = radios.reduce((ret,obj,i) => { 
+    if (obj['name'] === row.status){
+      return obj['value'];
+    }
+    return ret;
+  },'0');
+  if (!changed && newRadio !== radioValue){
+    setRadioValue(newRadio);
+  }
+
   const variant = [
     'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
   ];
 
+  const onFormSubmit = (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target),
+    formDataObj = Object.fromEntries(formData.entries())
+
+    let r = radios.reduce( (prev, cur, i) => cur.value===radioValue?cur.name:prev,"N/A");
+    const modifiedObj = {
+      id: row.id,
+      title: formDataObj.title,
+      description: formDataObj.description,
+      startdate: formDataObj.startdate,
+      completedate: formDataObj.completedate,
+      createdate: row.createdate,
+      status: r,
+
+    }
+    props.changeRow(modifiedObj);
+    if (props.selectedGoals.includes(row)){
+      props.setSelectedGoals([modifiedObj].concat(props.selectedGoals.filter( (r) => r.id !== row.id)));
+    }
+    
+    props.setCurRows([modifiedObj].concat(props.rows.filter( (r) => r.id !== row.id)));
+    setChanged(false);
+  }
+
+  const onClose = () => {
+    if (changed){
+      setChanged(false);
+    }
+    props.onHide();
+  };
+
   return (
     <Modal
       {...props}
+      onHide={onClose}
       size="lg"
       aria-labelledby="goalDetailModal"
       centered
     >
       <Modal.Header closeButton>
         <Modal.Title id="goalDetailModal">
-          Goal ID
+          Goal #{row.id}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form>
+        <Form  onSubmit={onFormSubmit} onChange={() => setChanged(true)}>
         <Form.Group className="mb-3" controlId="goalDetailTitle">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              type="text"
-              autoFocus
-              required
-            />
+            <FloatingLabel
+              controlID="floatingInput"
+              label="Title"
+              className="mb-3"
+              >
+              <Form.Control
+                name="title"
+                size="lg"
+                type="text"
+                autoFocus
+                required
+                defaultValue={row.title}
+                placeholder=""
+              />
+            </FloatingLabel>
           </Form.Group>
           <Form.Group
             className="mb-3"
             controlId="goalDetailDescription"
           >
-            <Form.Label>Description</Form.Label>
-            <Form.Control as="textarea" rows={3} />
+            <FloatingLabel
+              controlID="floatingInput"
+              label="Description"
+              className="mb-3"
+            >
+              <Form.Control 
+                name="description"
+                placeholder="" 
+                as="textarea" 
+                style={{height: '160px'}} 
+                defaultValue={row.description} />
+            </FloatingLabel>
           </Form.Group>
+          <Row className="g-2">
+            <Col md>
           <Form.Group className="mb-3" controlId="goalDetailStartDate">
             <Form.Label>Start Date</Form.Label>
             <Form.Control
+              name="startdate"
               type="date"
-              autoFocus
+              placeholder=""
               required
+              defaultValue={ row.startdate }
             />
           </Form.Group>
+            </Col>
+            <Col>
           <Form.Group className="mb-3" controlId="goalDetailCompletionDate">
             <Form.Label>Completion Date</Form.Label>
             <Form.Control
+              name="completedate"
               type="date"
-              autoFocus
+              placeholder=""
               required
+              defaultValue={row.completedate}
             />
           </Form.Group>
+          </Col>
+          <Col>
           <Form.Group className="mb-3" controlId="goalDetailCreationDate">
             <Form.Label>Creation Date</Form.Label>
             <Form.Control
-              type="text"
-              placeholder="12/34/5678"
-              autoFocus
+              name="createdate"
+              type="date"
+              placeholder=""
               readOnly
+              disabled
+              value={row.createdate}
             />
           </Form.Group>
+          </Col>
+          </Row>
           <Form.Group className="mb-3" controlId="goalDetailStatus">
             <Form.Label>Status</Form.Label><br/>
             <ButtonGroup>
@@ -335,7 +472,7 @@ function GoalDetailModal(props) {
                   name="radio"
                   value={radio.value}
                   checked={radioValue === radio.value}
-                  onChange={(e) => setRadioValue(e.currentTarget.value)}
+                  onChange={(e) => {setChanged(true); setRadioValue(e.currentTarget.value); }}
                   required
                 >
                   {radio.name}
@@ -349,9 +486,7 @@ function GoalDetailModal(props) {
           > 
             <Badge bg="danger" pill>!</Badge>
             <Form.Label>Manager Comment</Form.Label>
-            <Form.Control as="textarea" rows={3} readOnly>
-              Good job!
-            </Form.Control>
+            <Form.Control defaultValue={"Good job!"} as="textarea" rows={3} readOnly/>
             <Form.Text>Last edited on 02/11/2022</Form.Text>
           </Form.Group>
           <Form.Group
@@ -359,22 +494,29 @@ function GoalDetailModal(props) {
             controlId="goalDetailComment"
           >
             <Form.Label>Comment</Form.Label>
-            <Form.Control as="textarea" rows={3}>
-              I think so.
-            </Form.Control>
+            <Form.Control defaultValue={"I think so."}as="textarea" rows={3}/>
           </Form.Group>
+          <Modal.Footer>
+        <Button  onClick={onClose}>Close</Button>
+        <Button variant="success" disabled={!changed} type="submit" >Save Changes</Button>
+      </Modal.Footer>
         </Form>
       </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-        <Button variant="success" type="submit" onClick={() => null}>Save Changes</Button>
-      </Modal.Footer>
+     
     </Modal>
   );
 }
 
 export default function Dashboard() {
 
+  const [selectedGoalIndex,setSelectedGoalIndex] = React.useState(0);
+  const [selectedGoals, setSelectedGoals] = React.useState(rows.slice(0,numOfCards));
+  const [selectedGoal, setSelectedGoal] = React.useState(rows[0]);
+  const [curEmployee, setCurEmployee] = React.useState(loggedInUser);
+  const [curRows, setCurRows] = React.useState(rows);
+  const navigate = useNavigate();
+  const [modalShow, setModalShow] = React.useState(false);
+  
   const {state} = useLocation();
   if (state != null){
     loggedInUser = state.user;
@@ -382,13 +524,6 @@ export default function Dashboard() {
     console.log(state);
   }
 
-  const [selectedGoalIndex,setSelectedGoalIndex] = React.useState(0);
-  const [selectedGoals, setSelectedGoals] = React.useState(rows.slice(0,numOfCards));
-  const [curEmployee, setCurEmployee] = React.useState(loggedInUser);
-  const [curRows, setCurRows] = React.useState(rows);
-  const navigate = useNavigate();
-  const [modalShow, setModalShow] = React.useState(false);
-  
   const columns = [
 
     { 
@@ -419,7 +554,7 @@ export default function Dashboard() {
       description: 'The date of start for the goal',
       headerName: 'Start Date',
       type: 'date',
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
       width: 130,
     },
   
@@ -428,7 +563,7 @@ export default function Dashboard() {
       description: "The predicted completion date for a goal",
       headerName: 'Completion Date',
       type: 'date',
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
       width: 155,
     },
   
@@ -442,33 +577,18 @@ export default function Dashboard() {
     {
       field: "actions",
       type: 'actions',
-      headerName: "View",
+      headerName: "Full Info",
       description: 'Click for Full Goal Information!',
       sortable: false,
       filterable: false,
-      width: 100,
+      width: 85,
   
       getActions: (params) => [
-
-        <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => setModalShow(true) }/>,
-        // <GoalDetailModal
-        //   show={modalShow}
-        //   onHide={() => setModalShow(false)}
-        // />,
-        // AlertBox(
-        //   {
-        //     deny: "Cancel", 
-        //     accept: "I'm Sure", 
-        //     body: "Are you sure you want to delete this goal?", 
-        //     title: "Delete Goal #" + params.id
-        //   },
-        //   () => {
-        //     setCurRows( curRows.filter( (row) => row.id !== params.id ))
-        //     rows=rows.filter( (row) => row.id !== params.id)
-        //   }, 
-        //   () => 1,
-        //   <DeleteIcon color="warning"/>,
-        // )
+        <GridActionsCellItem icon={<ReviewsIcon color="primary" />} 
+          onClick={ () => {
+            setSelectedGoal(params.row);
+            setModalShow(true);
+          }}/>,
       ]
     
     },
@@ -480,28 +600,23 @@ export default function Dashboard() {
       description: 'Set it to archive!',
       sortable: false,
       filterable: false,
-      width: 100,
+      width: 85,
   
       getActions: (params) => [
-
-        // <GridActionsCellItem icon={<ReviewsIcon color="primary" />} onClick={ () => setModalShow(true) }/>,
-        <GoalDetailModal
-          show={modalShow}
-          onHide={() => setModalShow(false)}
-        />,
+        
         AlertBox(
           {
             deny: "Cancel", 
             accept: "I'm Sure", 
-            body: "Are you sure you want to set this goal as archieve?", 
-            title: "Archieve Goal #" + params.id
+            body: "Are you sure you want to archive this goal?", 
+            title: "Archive Goal #" + params.id
           },
           () => {
             setCurRows( curRows.filter( (row) => row.id !== params.id ))
             rows=rows.filter( (row) => row.id !== params.id)
           }, 
           () => 1,
-          <DeleteIcon color="warning"/>,
+          <InventoryIcon color="warning"/>,
         )
 
       ]
@@ -519,9 +634,11 @@ export default function Dashboard() {
             Dashboard
           </Navbar.Brand>
           <Button variant="light" onClick={() => 
-            {setCurEmployee(loggedInUser); 
-            setCurRows(rows); 
-            if(curEmployee != loggedInUser){setSelectedGoals(rows.slice(0,numOfCards))} }}>
+            { 
+            if(curEmployee != loggedInUser){setCurEmployee(loggedInUser); 
+              setCurRows(
+                rows
+              ); setSelectedGoals(rows.slice(0,numOfCards))} }}>
               Your Goals
           </Button>
 
@@ -536,15 +653,26 @@ export default function Dashboard() {
           </Navbar.Collapse>
       </Navbar>
       <div>
-        {EmployeeDashboard(selectedGoals,setSelectedGoals,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns)}
-        <div>
-
+        {EmployeeDashboard(selectedGoals,setSelectedGoals,curEmployee,curRows,selectedGoalIndex,setSelectedGoalIndex,columns,setCurRows,setSelectedGoal,setModalShow)}
+      <div>
+      
+      <GoalDetailModal
+          changeRow= { setSelectedGoal }
+          row={ selectedGoal }
+          show={modalShow}
+          rows = {curRows}
+          setCurRows = {setCurRows}
+          setSelectedGoals = {setSelectedGoals}
+          selectedGoals = {selectedGoals}
+          onHide={() => setModalShow(false)}
+        />:
+    
           <br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/>
           <br/><br/>
 
           <div>
-          {loggedInUser.isManager ? ManagerDashboard(setCurEmployee,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards) : "(not a manager)"}
+          {loggedInUser.isManager ? ManagerDashboard(setCurEmployee,setCurRows,setSelectedGoals,setSelectedGoalIndex,numOfCards,setModalShow,setSelectedGoal) : "(not a manager)"}
           </div>
         </div>
       </div>

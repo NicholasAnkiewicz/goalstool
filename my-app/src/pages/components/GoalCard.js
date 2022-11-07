@@ -13,11 +13,11 @@ import Box from '@mui/material/Box';
 import { CardActionArea } from '@mui/material';
 
 
-export default function GoalCard(goal,employee) {
+export default function GoalCard(goal,employee,onClick) {
   return (
     <Card variant="elevation" sx={{ width: '100%'}}>
-      <CardActionArea>
-        <CardHeader
+      <CardActionArea onClick={onClick}>
+        <CardHeader sx={{height: '90px'}}
           avatar={
             <Avatar sx={ goal.status=="Not-Started"? { bgcolor: blue[500] } : goal.status=="In-Progress"? { bgcolor: green[500] } : goal.status == "Done" ? { bgcolor: blue[0]} : { bgcolor: red[500] } }/>
           }
@@ -26,16 +26,17 @@ export default function GoalCard(goal,employee) {
               {<ReviewsIcon size="lg" color="primary"/>}
             </IconButton>
           }
-          title={"(" + goal.id + ") " + goal.title}
-          subheader={employee.firstname + " " + employee.lastname}
+          title={goal.title}
+          subheader={employee.firstname + " " + employee.lastname + " (" + employee.eid+")"}
         />
         <CardContent sx={{height: '200px'}}>
-          <Typography style={{overflow: "hidden", textOverflow: "ellipsis", height: '70%'}} variant="body1" color="text.primary">
+          <Typography fontSize="14px" sx={{overflow: "hidden", textOverflow: "ellipsis", height: '85%'}} variant="body1" color="text.primary">
             {goal.description}
           </Typography>
-          <br/>
+          
           <Typography variant="body2" color="text.secondary">
-            <strong>{goal.status}</strong> {goal.startdate + ' - ' + goal.completedate} 
+            <strong>{goal.status + " (#" + goal.id + ")"}</strong> 
+            <div>{goal.startdate} — {goal.completedate} </div>
           </Typography>
         </CardContent>
       </CardActionArea>
