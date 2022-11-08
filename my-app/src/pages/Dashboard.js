@@ -485,7 +485,7 @@ function GoalDetailModal(props) {
             className="mb-3"
             controlId="goalDetailManagerComment"
           > 
-          <Form.Label>Comment</Form.Label>
+          <Form.Label>Comments</Form.Label>
             <ListGroup as="ol" numbered>
               <ListGroup.Item
                 as="li"
