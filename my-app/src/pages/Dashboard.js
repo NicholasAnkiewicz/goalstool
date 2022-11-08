@@ -480,24 +480,62 @@ function GoalDetailModal(props) {
               ))}
             </ButtonGroup>
           </Form.Group>
+
           <Form.Group
             className="mb-3"
             controlId="goalDetailManagerComment"
           > 
-            <Badge bg="danger" pill>!</Badge>
-            <Form.Label>Manager Comment</Form.Label>
-            <Form.Control defaultValue={"Good job!"} as="textarea" rows={3} readOnly/>
-            <Form.Text>Last edited on 02/11/2022</Form.Text>
+          <Form.Label>Comment</Form.Label>
+            <ListGroup as="ol" numbered>
+              <ListGroup.Item
+                as="li"
+                className="d-flex justify-content-between align-items-start"
+              >
+                <div className="ms-2 me-auto">
+                  <div className="fw-bold">Employee</div>
+                  xxx
+                </div>
+                <Badge bg="primary" pill>
+                  !
+                </Badge>
+              </ListGroup.Item>
+              <ListGroup.Item
+                as="li"
+                className="d-flex justify-content-between align-items-start"
+              >
+                <div className="ms-2 me-auto">
+                  <div className="fw-bold">Manager</div>
+                  xxx
+                </div>
+                <Badge bg="danger" pill>
+                  !
+                </Badge>
+              </ListGroup.Item>
+              <ListGroup.Item
+                as="li"
+                className="d-flex justify-content-between align-items-start"
+                disabled
+              >
+                <div className="ms-2 me-auto">
+                  <div className="fw-bold">Manager</div>
+                  xxx
+                </div>
+              </ListGroup.Item>
+            </ListGroup>
           </Form.Group>
+
+          
           <Form.Group
-            className="mb-3"
+            className="mb-5"
             controlId="goalDetailComment"
           >
-            <Form.Label>Comment</Form.Label>
-            <Form.Control defaultValue={"I think so."}as="textarea" rows={3}/>
+            <Form.Label>Add Comment</Form.Label>
+            <Form.Control className="mb-1" defaultValue={"I think so."}as="textarea" rows={2}/>
+            <Button style={{float: 'right'}} onClick={onClose}>Add</Button>
           </Form.Group>
+          <br/>
           <Modal.Footer>
-        <Button  onClick={onClose}>Close</Button>
+        <Button onClick={onClose} >Close</Button>
         <Button variant="success" disabled={!changed} type="submit" >Save Changes</Button>
       </Modal.Footer>
         </Form>
