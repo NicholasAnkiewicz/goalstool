@@ -11,15 +11,20 @@ import { blue } from '@mui/material/colors';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import Box from '@mui/material/Box';
 import { CardActionArea } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 
-
-export default function GoalCard(goal,employee,onClick) {
+export default function CommentCard(comment,getGoal,getUser,onClick) {
+  const employee = getUser(comment.eid);
+  const goal = getGoal(comment.gid);
   return (
     <Card variant="elevation" sx={{ width: '100%'}}>
       <CardActionArea onClick={onClick}>
-        <CardHeader sx={{height: '90px'}}
+        <CardHeader sx={{height: '60px'}}
           avatar={
-            <Avatar sx={ goal.status=="Not-Started"? { bgcolor: blue[500] } : goal.status=="In-Progress"? { bgcolor: green[500] } : goal.status == "Done" ? { bgcolor: blue[0]} : { bgcolor: red[500] } }/>
+            <Avatar sx={ comment.viewedBy.includes(comment.author) ? { bgcolor: blue[500] } : { bgcolor: red[500] } }>
+              {employee.firstname[0]}
+            </Avatar>
           }
           action={
             <IconButton aria-label="view">
@@ -27,16 +32,16 @@ export default function GoalCard(goal,employee,onClick) {
             </IconButton>
           }
           title={goal.title}
-          subheader={employee.firstname + " " + employee.lastname + " (" + employee.eid+")"}
+          subheader={employee.firstname + " " + employee.lastname + " (" + employee.id+")"}
         />
         <CardContent sx={{height: '200px'}}>
           <Typography fontSize="14px" sx={{overflow: "hidden", textOverflow: "ellipsis", height: '85%'}} variant="body1" color="text.primary">
-            {goal.description}
+            {comment.description}
           </Typography>
           
           <Typography variant="body2" color="text.secondary">
-            <strong>{goal.status + " (#" + goal.id + ")"}</strong> 
-            <div>{goal.startdate} — {goal.completedate} </div>
+           
+            <div>{"Posted " + comment.createdate.toLocaleDateString() + " at " + comment.createdate.toLocaleTimeString()}</div>
           </Typography>
         </CardContent>
       </CardActionArea>

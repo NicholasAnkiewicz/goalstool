@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import ManagerDashboard from './pages/ManagerDashboard'; 
 import NewGoal from './pages/NewGoal';
-import GoalCard from './pages/components/GoalCard';
+import GoalCard from './pages/components/CommentCard';
 import AlertBox from './pages/components/AlertBox';
 function App() {
     return (      

@@ -24,41 +24,10 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 
-function createData(firstname, lastname, id, title) {
-  return {
-    firstname,
-    lastname,
-    id,
-    title,
-    //Sample Data
-    goals: [
-      {
-        id: 235,
-        startdate: '2020-01-05', createdate: '2020-02-01',
-        completedate: '2021-01-05',
-        title: 'Test Employee Dashboard Frontend',
-        description: "Try to break inputs, look for undefined behavior.",
-        status: "Done",
-      },
-      {
-        id: 292,
-        startdate: '2020-01-02', createdate: '2020-01-02',
-        completedate: '2021-01-02',
-        title: 'Spend More Time Outside',
-        description: "Vitamin D, fresh air, exercise! Before it gets cold. ",
-        status: "In-Progress",
-      },
-    ],
-  };
-}
-
 function Row(props) {
-  const { row } = props;
+  const { user } = props;
+  const { goals } = props;
   const { setCurUser } = props;
-  const { setCurRows } = props;
-  const { setSelectedGoals } = props;
-  const { setSelectedGoalIndex } = props;
-  const { numOfCards } = props;
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -68,7 +37,7 @@ function Row(props) {
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={() => goals.length===0?setOpen(false):setOpen(!open)}
           >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
@@ -77,17 +46,14 @@ function Row(props) {
         <TableCell component="th" scope="row">
          
         <IconButton size="small" onClick={() => {
-            setCurUser( {firstname: row.firstname, lastname: row.lastname, id: row.id, title: row.title } )
-            setCurRows(row.goals)
-            setSelectedGoals(row.goals.slice(0,numOfCards))
-            setSelectedGoalIndex(0)
+            setCurUser( user.id )
           }}>
           {<PersonIcon color="primary"/>}
-          <strong>{row.firstname + " " + row.lastname}  </strong>
+          <strong>{user.firstname + " " + user.lastname}  </strong>
         </IconButton>
         </TableCell>
-        <TableCell >{row.id}</TableCell>
-        <TableCell >{row.title}</TableCell>
+        <TableCell >{user.id}</TableCell>
+        <TableCell >{user.title}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -106,10 +72,10 @@ function Row(props) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.goals.map((GoalsRow) => (
+                  {goals.map((GoalsRow) => (
                     <TableRow key={GoalsRow.id}>
                       <TableCell component="th" scope="row">
-                        <IconButton size="small" onClick={() => { props.setCurRow(GoalsRow); props.setModal(true) }}>
+                        <IconButton size="small" onClick={() => props.activateModal(GoalsRow)}>
                           {<ReviewsIcon color="primary"/>}
                            {GoalsRow.title}
                         </IconButton>
@@ -136,34 +102,8 @@ function Row(props) {
   );
 }
 
-Row.propTypes = {
-  setCurUser: PropTypes.func.isRequired,
-  setCurRows: PropTypes.func.isRequired,
-  setSelectedGoals: PropTypes.func.isRequired,
-  row: PropTypes.shape({
-    firstname: PropTypes.string.isRequired,
-    lastname: PropTypes.string.isRequired,
-    id: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
-    
-    goals: PropTypes.arrayOf(
-      PropTypes.shape({
-        description: PropTypes.string.isRequired,
-        title: PropTypes.string.isRequired,
-        createdate: PropTypes.string.isRequired,
-      }),
-    ).isRequired,
-  }).isRequired,
-};
 
-//Sample Data
-const rows = [
-  createData('Jill', 'Johnson', 159, 'Engineer'),
-  createData('Tim','Thompson', 237, 'Project Manager'),
-  createData('Eclair','', 262, "Engineer"),
-];
-
-export default function ManagerDashboard(setCurUser, setCurRows, setSelectedGoals, setSelectedGoalIndex, numOfCards, setModal, setCurRow) {
+export default function ManagerDashboard(setCurUser, activateModal, users, goals) {
   return (
     <box style={{width:"100%"}}>
     <br/>
@@ -184,12 +124,11 @@ export default function ManagerDashboard(setCurUser, setCurRows, setSelectedGoal
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <Row key={row.id}
-              row={row} setModal={setModal} setCurRow={setCurRow}
-              setCurUser={setCurUser} setCurRows={setCurRows} 
-              setSelectedGoals={setSelectedGoals} setSelectedGoalIndex={setSelectedGoalIndex}
-              numOfCards={numOfCards}/>
+          {users.map((user) => (
+            <Row key={user.id} setCurUser={setCurUser}
+              goals={goals.filter((goal)=>goal.assignedto===user.id)}
+              user = {user} activateModal={activateModal}
+              />
           ))}
         </TableBody>
       </Table>

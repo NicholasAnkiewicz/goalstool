@@ -21,18 +21,25 @@ function Login() {
     e.preventDefault()
     const formData = new FormData(e.target),
       formDataObj = Object.fromEntries(formData.entries())
-    fetchGoals(formDataObj.id,formDataObj.password)
+    fetchUser(formDataObj.id,formDataObj.password)
   }
 
-  const fetchGoals = async (id,password) => {
-    const response = await fetch("http://localhost:8000/auth?eid="+id+"&password="+password)
+  const fetchUser = async (username,password) => {
+    const response = await fetch(
+      "http://localhost:8000/auth&username="+username+"&password="+password,
+      { 
+        method: "GET",
+        headers: { "content-type" : "application/json" },
+      }
+    )
+  
     if (response === null){console.log("TIMED OUT")}
-    const data = await response.json()
+    const data = response.json();
     if (data !== null){
-      navigate('./Dashboard', {goals: data.goals, user: data.user})
+      navigate('./Dashboard', {user: data.user})
     }
     else{
-      console.log("Date is null!")
+      console.log("Data is null!")
     }
   }
 
