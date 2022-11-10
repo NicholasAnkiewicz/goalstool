@@ -34,11 +34,11 @@ async def seed_test_employee(sess: Session=Depends(get_db)):
                 last_name="Singh",
                 employee_id = "UKG123",
                 email="saakshaatsin@umass.edu",
-                company_id="UKG",
+                company_id=2,
                 company_name="UKG",
                 position_title="Test User",
-                is_manager=False,
-                current=True,
+                current = True,
+                is_manager = True,
                 manager_id=123,
                 password="easypeesylemonsqueezy"
                 )
