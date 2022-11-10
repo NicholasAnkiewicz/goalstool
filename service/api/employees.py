@@ -30,14 +30,16 @@ async def get_employee(id: int, sess: Session=Depends(get_db)):
 @employees_router.get("/employees/demo", response_model=schemas.Employee)
 async def seed_test_employee(sess: Session=Depends(get_db)):
     test_employee = models.Employee(
-                firstname="Saakshaat",
-                lastname="Singh",
-                employeeid = "UKG123",
+                first_name="Saakshaat",
+                last_name="Singh",
+                employee_id = "UKG123",
                 email="saakshaatsin@umass.edu",
-                companyid=2,
-                companyname="UKG",
-                title="Test User",
-                managerid=123,
+                company_id=2,
+                company_name="UKG",
+                position_title="Test User",
+                current = True,
+                is_manager = True,
+                manager_id=123,
                 password="easypeesylemonsqueezy"
                 )
 
