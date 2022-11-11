@@ -37,4 +37,3 @@ async def authwhatever(sess: Session=Depends(get_db)):
     sess.refresh(test2)
     sess.refresh(test3)
     return [test1, test2, test3]
->>>>>>> back-end
