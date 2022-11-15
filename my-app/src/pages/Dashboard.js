@@ -103,7 +103,7 @@ function EmployeeDashboard(props) {
         Recent Comments
       <Row sx={{width: '100%'}}>
         {topComments.map((comment) => (
-          <Col sx={{height: "300px", width: "25%"}}>
+          <Col key={comment.eid} sx={{height: "300px", width: "25%"}}>
             {CommentCard(comment,getGoalByID,getUserByID,() => activateModal(getGoalByID(comment.gid))  )}
           </Col>
         ))}
@@ -167,6 +167,7 @@ function NewGoalModal(props) {
 
   return (
     <Modal
+      key={Modal.uid}
       {...props}
       onHide={onClose}
       size="lg"
@@ -800,7 +801,7 @@ export default function Dashboard() {
       headerName: 'Description', 
       flex: 1,
       description: "More information about what the goal entails",
-      minWidth: 110,
+      minWidth: 100,
     },
   
     {
@@ -818,7 +819,7 @@ export default function Dashboard() {
       headerName: 'Completion Date',
       type: 'date',
       valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
-      width: 155,
+      width: 200,
     },
   
     {
@@ -835,7 +836,7 @@ export default function Dashboard() {
       description: 'Click for Full Goal Information!',
       sortable: false,
       filterable: false,
-      width: 85,
+      width: 110,
   
       getActions: (params) => [
         <GridActionsCellItem icon={<ReviewsIcon color="primary" />} 
@@ -853,7 +854,7 @@ export default function Dashboard() {
       description: 'Archive the goal!',
       sortable: false,
       filterable: false,
-      width: 85,
+      width: 110,
   
       getActions: (params) => [
         
