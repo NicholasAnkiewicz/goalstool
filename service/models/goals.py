@@ -9,6 +9,7 @@ class GoalStatus(str, enum.Enum):
     to_do = 'To Do'
     in_progress = 'In Progress'
     completed = 'Completed'
+    archived = 'Archived'
 
 class Goal(Base, BaseModel):
     __tablename__ = 'goals'
