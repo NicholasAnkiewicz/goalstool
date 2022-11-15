@@ -30,9 +30,23 @@ async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
         start_date=item.start_date,
         end_date = item.end_date
     )
-    Session.add(SQLitem)
-    Session.commit()
-    return item
+
+@goals_router.post("/goals/create/", response_model=schemas.Goal)
+async def post_goal(credentials: schemas.Goal, sess: Session=Depends(get_db)):
+    test_employee = models.Goal(
+                id = random.randint(10000, 99999),
+                title = credentials.title,
+                description = credentials.description,
+                assignee_id = credentials.assignee_id,
+                status = credentials.status,
+                start_date = credentials.start_date,
+                end_date = credentials.end_date
+                )
+    sess.add(test_employee)
+    sess.commit()
+    sess.refresh(test_employee)
+    return test_employee
+
 '''
 @goals_router.get("/goals/demo", response_model=schemas.Goal)
 async def seed_test_goal(sess: Session=Depends(get_db)):
