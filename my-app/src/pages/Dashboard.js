@@ -32,6 +32,7 @@ const numOfCards = 4;
 
 function EmployeeDashboard(props) {
   let {
+    setTopComments, comments,
     loggedInUser, topComments, curUser, curGoals, AddGoal,
     columns, activateModal, getGoalByID, getUserByID, users,
   } = props;
@@ -71,7 +72,8 @@ function EmployeeDashboard(props) {
         columns={columns}
         onRowClick={
           (params, event, details) => {
-            activateModal(params.row);
+            setTopComments(comments.filter((comment)=>comment.gid === params.id).slice(0,numOfCards));
+            // activateModal(params.row);
           }
         }
         components={{ Toolbar: () => 
@@ -909,6 +911,8 @@ export default function Dashboard() {
       </Navbar>
       <div>
         <EmployeeDashboard
+          comments = {comments}
+          setTopComments = {setTopComments}
           loggedInUser={loggedInUser} getGoalByID={getGoalByID}
           topComments={topComments} curUser={curUser} users={users}
           curGoals={curGoals} columns={columns} getUserByID={getUserByID}
