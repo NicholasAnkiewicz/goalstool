@@ -21,7 +21,7 @@ async def auth(credentials: schemas.AuthPost, sess: Session=Depends(get_db)):
     if auth:
         return auth
     else:
-        raise HTTPException(404, detail=f"Username, password doesn`t match!")
+        raise HTTPException(404, detail=f"Username, password doesn't match!")
 
 @auth_router.get("/auth/demo", response_model= List[schemas.AuthEnd])
 async def authwhatever(sess: Session=Depends(get_db)):
