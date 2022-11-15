@@ -6,9 +6,10 @@ from sqlalchemy.orm import relationship
 from .base import Base, BaseModel
 
 class GoalStatus(str, enum.Enum):
-    to_do = 'To Do'
-    in_progress = 'In Progress'
-    completed = 'Completed'
+    to_do = 'Not-Started'
+    in_progress = 'In-Progress'
+    done = 'Done'
+    missed = 'Missed'
     archived = 'Archived'
 
 class Goal(Base, BaseModel):
