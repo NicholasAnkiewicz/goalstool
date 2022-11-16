@@ -1,7 +1,7 @@
 from datetime import datetime
 import enum
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 
 from .base import Base, BaseModel
@@ -16,7 +16,7 @@ class Employee(Base, BaseModel):
     company_name = Column(String(50))
     position_title = Column(String(50))
     current = Column(Boolean)
-    manager_id = Column(Integer)
-    is_manager = Column(Boolean)
     password = Column(String(50))
     goals = relationship("Goal", back_populates="assignee")
+    manager_id = Column(Integer, ForeignKey("employees.id"))
+    reports = relationship("Employee")
