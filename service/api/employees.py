@@ -27,7 +27,6 @@ async def get_employee(id: int, sess: Session=Depends(get_db)):
     else:
         raise HTTPException(404, detail=f"Employee with id {id} not found")
 
-
 @employees_router.get("/employees/create_manager", response_model=schemas.Employee)
 async def seed_test_manager(sess: Session=Depends(get_db)):
     test_employee = models.Employee(
