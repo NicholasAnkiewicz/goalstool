@@ -27,6 +27,10 @@ async def get_employee(id: int, sess: Session=Depends(get_db)):
     else:
         raise HTTPException(404, detail=f"Employee with id {id} not found")
 
+@employees_router.get("/employee/managedby/{id}", response_model=List[schemas.Employee])
+async def get_managed_employees(id: int, sess: Session=Depends(get_db)):
+    return sess.query(models.Employee).filter(models.Employee.manager_id == id).all()
+
 @employees_router.post("/employee/create/", response_model=schemas.Employee)
 async def post_employee(credentials: schemas.Employee, sess: Session=Depends(get_db)):
     test_employee = models.Employee(

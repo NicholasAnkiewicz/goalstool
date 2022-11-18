@@ -14,33 +14,68 @@ import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [show, setShow] = useState(false);
+  const [incorrect,setIncorrect] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const navigate = useNavigate();
+  
   const onFormSubmit = e => {
     e.preventDefault()
     const formData = new FormData(e.target),
       formDataObj = Object.fromEntries(formData.entries())
-    fetchUser(formDataObj.id,formDataObj.password)
+    fetchUser(formDataObj.eid,formDataObj.password)
   }
 
   const fetchUser = async (username,password) => {
     const response = await fetch(
-      "http://localhost:8000/auth&username="+username+"&password="+password,
+      "http://localhost:8000/auth",
       { 
-        method: "GET",
+        method: "POST",
         headers: { "content-type" : "application/json" },
+        body: JSON.stringify({username: username, password: password})
       }
     )
-  
-    if (response === null){console.log("TIMED OUT")}
-    const data = response.json();
-    if (data !== null){
-      navigate('./Dashboard', {user: data.user})
+    if (response.status === 404){
+      setIncorrect(true);
     }
     else{
-      console.log("Data is null!")
+      response.json().then(d => {
+
+      fetch("http://localhost:8000/employee/managedby/"+d.id, {
+      method: "GET",
+      headers: { "content-type" : "application/json"},
+    }).then( response => response.json()).then( managedUsers => {       
+      
+        fetch("http://localhost:8000/employee/"+d.manager_id, {
+          method: "GET",
+          headers: { "content-type" : "application/json"},
+        }).then ( response => response.json()).then ( manager => {
+        
+        navigate('./Dashboard', 
+          {state: {
+            user: {
+            firstname: d.first_name,
+            lastname: d.last_name,
+            id: d.id,
+            employee_id: d.employee_id,
+            email: d.email,
+            companyid: d.company_id,
+            companyname: d.company_name,
+            title: d.position_title,
+            mid: d.manager_id,
+            isManager: d.is_manager,
+            goals: d.goals
+            },
+            managedUsers: managedUsers,
+            manager: manager,
+          } }
+       )})});
+      });
+      
     }
+    
+     
+    
   }
 
 
@@ -85,13 +120,27 @@ function Login() {
                     Login
                   </Button>
                 </div>
+                {incorrect?"Your Username or Password was Incorrect":""}
               </Form>
 
             </Card.Body>
           </Card>
           
         </Col>
-        <Button className="btn-sm border-0 bg-warning" type="submit" onClick={()=> navigate('./Dashboard')}>
+        <Button className="btn-sm border-0 bg-warning" type="submit" onClick={()=> navigate('./Dashboard',           {state: {user: {
+            firstname: "Jim",
+            lastname: "Johnson",
+            id: 33,
+            employee_id: 0,
+            email: "jimjohnson@acme.com",
+            companyid: 4,
+            companyname: "acme",
+            title: "middle manager",
+            mid: 42,
+            isManager: true,
+            goals: []
+            }
+          } })}>
           Temporary Access
         </Button>
       </Row>

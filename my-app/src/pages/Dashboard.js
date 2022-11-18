@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, useResolvedPath } from "react-router-dom";
+import { useNavigate, useLocation, useResolvedPath, resolvePath } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
 import logo from './ukglogo.jpg';
@@ -25,8 +25,9 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 
-//Sample Data
+
 
 const numOfCards = 4;
 
@@ -101,6 +102,7 @@ function EmployeeDashboard(props) {
       />
       <div className="fw-bold fs-2" style={{color: '#005151'}}  >
         Recent Comments
+      <Container fluid>
       <Row sx={{width: '100%'}}>
         {topComments.map((comment) => (
           <Col key={comment.eid} sx={{height: "300px", width: "25%"}}>
@@ -108,6 +110,7 @@ function EmployeeDashboard(props) {
           </Col>
         ))}
       </Row>
+      </Container>
       </div>
     </div>
   )
@@ -129,7 +132,9 @@ function NewGoalModal(props) {
     e.preventDefault();
     const formData = new FormData(e.target),
     formDataObj = Object.fromEntries(formData.entries())
-    formDataObj.id = Math.floor(Math.random() * 1000000000);
+    formDataObj.id = -1;
+    formDataObj.createdate = new Date();
+    formDataObj.createdBy = props.loggedInUser.id;
     let r = radios.reduce( (prev, cur, i) => cur.value===radioValue?cur.name:prev,"N/A");
     formDataObj.status = r;
     const aTo = formDataObj.assignedto;
@@ -141,20 +146,7 @@ function NewGoalModal(props) {
       formDataObj.assignedto = id;
     }
 
-    const postObject = {
-      title: formDataObj.title,
-      description: formDataObj.description,
-      assignee_id: formDataObj.assignedto,
-      status: formDataObj.status,
-      start_date: new Date(formDataObj.startdate),
-      end_date: new Date(formDataObj.completedate),
-    }
-    fetch("http://localhost:8000/goals", {
-      method: "POST",
-      headers: { "content-type" : "application/json"},
-      body: JSON.stringify(postObject)
-
-    })
+    
 
     props.AddGoal(formDataObj);
     props.onHide();
@@ -276,6 +268,13 @@ function NewGoalModal(props) {
 function GoalDetailModal(props) {
   const { row, getCommentsByGoal, changeRow, getEmployee, AddComment, loggedInUser, managedUsers} = props;
   
+  const [changed, setChanged] = useState(false);
+  const [makingNewComment,setMakingNewComment] = useState(false);
+  const [radioValue, setRadioValue] = useState('-1');
+
+
+
+  if (row === undefined){return;}
   let users = managedUsers.concat([loggedInUser]);
 
   let comments = getCommentsByGoal(row.id).sort((a,b) => {
@@ -288,10 +287,6 @@ function GoalDetailModal(props) {
     { name: 'Done', value: '3' },
     { name: 'Missed', value: '4' },
   ];
-
-  const [changed, setChanged] = useState(false);
-  const [makingNewComment,setMakingNewComment] = useState(false);
-  const [radioValue, setRadioValue] = useState('-1');
 
   let newRadio = radios.reduce((ret,obj,i) => { 
     if (obj['name'] === row.status){
@@ -308,13 +303,16 @@ function GoalDetailModal(props) {
     'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
   ];
 
-  const createdBy = props.getEmployee(row.createdby);
+  const createdBy = props.getEmployee(33) // UNCOMMENT WHEN BACKEND HAS CREATEDBY props.getEmployee(row.createdBy); 
   const assignedTo = props.getEmployee(row.assignedto);
 
   const onFormSubmit = (e) => {
     e.preventDefault()
     const formData = new FormData(e.target),
     formDataObj = Object.fromEntries(formData.entries())
+    
+    if (!users.includes(createdBy)){formDataObj.assignedto=row.assignedto;}
+    else {formDataObj.assignedto = parseInt(formDataObj.assignedto.split("(")[1].slice(0,-1));}
 
     let r = radios.reduce( (prev, cur, i) => cur.value===radioValue?cur.name:prev,"N/A");
     const modifiedObj = {
@@ -325,11 +323,10 @@ function GoalDetailModal(props) {
       completedate: formDataObj.completedate,
       createdate: row.createdate,
       status: r,
-      assignedto: parseInt(formDataObj.assignedto.split("(")[1].slice(0,-1)),
-      createdby: row.createdby,
+      assignedto: formDataObj.assignedto,
+      createdBy: row.createdBy,
     }
-    changeRow(modifiedObj);
-    setChanged(false);
+    changeRow(modifiedObj).then(()=>setChanged(false));
   }
 
   const onClose = () => {
@@ -367,7 +364,7 @@ function GoalDetailModal(props) {
     >
       <Modal.Header closeButton>
         <Modal.Title id="goalDetailModal">
-          Goal #{row.id}
+          View/Edit Goal #{row.id}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -473,7 +470,7 @@ function GoalDetailModal(props) {
             <Row>
                 <Col>
                 <Form.Control
-                  name="createdby"
+                  name="createdBy"
                   type="string"
                   placeholder=""
                   readOnly
@@ -546,157 +543,209 @@ function GoalDetailModal(props) {
   );
 }
 
+const convertGoalFormat = (goal) => {
+  return {
+    id: goal.id,
+    title: goal.title,
+    description: goal.description,
+    startdate: goal.start_date.split("T")[0], //just in case, /docs says these could include
+    completedate: goal.end_date.split("T")[0], //full datetimes and we just want year-month-day
+    status: goal.status,
+    createdate: new Date(), //TODO 
+    createdBy: 33, //TODO
+    assignedto: goal.assignee_id
+  }
+}
+
+
+const convertUserFormat = (user) => {
+  return {
+      firstname: user.first_name,
+      lastname: user.last_name,
+      id: user.id,
+      title: user.position_title,
+      email: user.email,
+      compid: user.company_id, 
+      mid: user.manager_id, 
+  }
+}
+
+const convertCommentFormat = (comment) => {
+  return {
+    // TODO when we get backend comment fields
+  }
+}
+
 export default function Dashboard() {
 
+  const {state} = useLocation();
+
   const [comments,setComments] = React.useState([
-    {
-      id: 1, gid: 3877,
-      description: "I'm hoping to be done with this soon",
-      eid: 43, createdate: new Date(),
-      viewedBy: [],
-    },
-    {
-      id: 2, gid: 3877,
-      description: "nice job!",
-      eid: 42, createdate: new Date(),
-      viewedBy: [42],
-    },
+    // {
+    //   id: 1, gid: 3877,
+    //   description: "I'm hoping to be done with this soon",
+    //   eid: 43, createdate: new Date(),
+    //   viewedBy: [],
+    // },
+    // {
+    //   id: 2, gid: 3877,
+    //   description: "nice job!",
+    //   eid: 32, createdate: new Date(),
+    //   viewedBy: [32],
+    // },
   
-    {
-      id: 3, gid: 298,
-      description: "This makes sense, keep up the good work.",
-      eid: 42, createdate: new Date(2020, 10, 6, 30, 5),
-      viewedBy: []
-    },
+    // {
+    //   id: 3, gid: 298,
+    //   description: "This makes sense, keep up the good work.",
+    //   eid: 32, createdate: new Date(2020, 10, 6, 30, 5),
+    //   viewedBy: []
+    // },
   
-    {
-      id: 4, gid: 62,
-      description: "cool stuff, keep it up",
-      eid: 42, createdate: new Date(),
-      viewedBy: []
-    },
-    {
-      id: 5, gid: 3876,
-      description: "Jim, this is not a realistic goal...",
-      eid: 41, createdate: new Date(),
-      viewedBy: []
-    },
+    // {
+    //   id: 4, gid: 62,
+    //   description: "cool stuff, keep it up",
+    //   eid: 32, createdate: new Date(),
+    //   viewedBy: []
+    // },
+    // {
+    //   id: 5, gid: 3876,
+    //   description: "Jim, this is not a realistic goal...",
+    //   eid: 41, createdate: new Date(),
+    //   viewedBy: []
+    // },
   ]);
+
+  const [goals,setGoals] = React.useState([state.user].concat(state.managedUsers)
+    .reduce( (out,user,i) => out.concat(user.goals.map( g => convertGoalFormat(g))),[]));  
+  const otherUsers = [state.manager].concat(state.managedUsers);
+  const [loggedInUser] = React.useState(state.user);
+  const [users,setUsers] = React.useState([state.user].concat(
+    otherUsers.map(u=>convertUserFormat(u))));
+
+    // {
+    //   firstname: "Elon",
+    //   lastname: "Tusk",
+    //   id: 41, //Employee ID
+    //   title: "Generic Middle Manager",
+    //   isManager: true,
+    //   email: "tusk@acme.com",
+    //   compid: 2, //Company ID
+    //   mid: 40, //Manager ID
+    //   password: "password",
+    //   currentUser: false,
+    // },
+    // {
+    //   firstname: "Jim",
+    //   lastname: "Johnson",
+    //   id: 32, //Employee ID
+    //   title: "Generic Middle Manager",
+    //   isManager: true,
+    //   email: "jimjohnson@acme.com",
+    //   compid: 2, //Company ID
+    //   mid: 41, //Manager ID
+    //   password: "password",
+    //   currentUser: true,
+    // },
+    // {
+    //   firstname: "Jill",
+    //   lastname: "Johnson",
+    //   id: 43, //Employee ID
+    //   title: "Generic Middle Manager",
+    //   isManager: true,
+    //   email: "jimjohnson@acme.com",
+    //   compid: 2, //Company ID
+    //   mid: 32, //Manager ID
+    //   password: "password",
+    //   currentUser: false,
+    // },
+    // {
+    //   firstname: "Tim",
+    //   lastname: "Thompson",
+    //   id: 44, //Employee ID
+    //   title: "Generic Middle Manager",
+    //   isManager: true,
+    //   email: "jimjohnson@acme.com",
+    //   compid: 2, //Company ID
+    //   mid: 32, //Manager ID
+    //   password: "password",
+    //   currentUser: false,
+    // },
+    // {
+    //   firstname: "Eclair",
+    //   lastname: "",
+    //   id: 45, //Employee ID
+    //   title: "Generic Middle Manager",
+    //   isManager: true,
+    //   email: "jimjohnson@acme.com",
+    //   compid: 2, //Company ID
+    //   mid: 32, //Manager ID
+    //   password: "password",
+    //   currentUser: false,
+    // },
+  //]);
   
-  const [users,setUsers] = React.useState([
-    {
-      firstname: "Elon",
-      lastname: "Tusk",
-      id: 41, //Employee ID
-      title: "Generic Middle Manager",
-      isManager: true,
-      email: "tusk@acme.com",
-      compid: 2, //Company ID
-      mid: 40, //Manager ID
-      password: "password",
-      currentUser: false,
-    },
-    {
-      firstname: "Jim",
-      lastname: "Johnson",
-      id: 42, //Employee ID
-      title: "Generic Middle Manager",
-      isManager: true,
-      email: "jimjohnson@acme.com",
-      compid: 2, //Company ID
-      mid: 41, //Manager ID
-      password: "password",
-      currentUser: true,
-    },
-    {
-      firstname: "Jill",
-      lastname: "Johnson",
-      id: 43, //Employee ID
-      title: "Generic Middle Manager",
-      isManager: true,
-      email: "jimjohnson@acme.com",
-      compid: 2, //Company ID
-      mid: 42, //Manager ID
-      password: "password",
-      currentUser: false,
-    },
-    {
-      firstname: "Tim",
-      lastname: "Thompson",
-      id: 44, //Employee ID
-      title: "Generic Middle Manager",
-      isManager: true,
-      email: "jimjohnson@acme.com",
-      compid: 2, //Company ID
-      mid: 42, //Manager ID
-      password: "password",
-      currentUser: false,
-    },
-    {
-      firstname: "Eclair",
-      lastname: "",
-      id: 45, //Employee ID
-      title: "Generic Middle Manager",
-      isManager: true,
-      email: "jimjohnson@acme.com",
-      compid: 2, //Company ID
-      mid: 42, //Manager ID
-      password: "password",
-      currentUser: false,
-    },
-  ]);
   
-  const [goals,setGoals] = React.useState([
+
+
   
-    {
-      id: 298, title: 'Purchase New Coffee Machine',
-      description: 'Jon says Keurig is preferred!',
-      startdate: '2022-10-27', completedate: "2021-10-28", 
-      status: "In-Progress", createdate: '2020-08-20',
-      createdby: 42, assignedto: 45,
+
+
+    
   
-    },
+    // {
+    //   id: 298, title: 'Purchase New Coffee Machine',
+    //   description: 'Jon says Keurig is preferred!',
+    //   startdate: '2022-10-27', completedate: "2021-10-28", 
+    //   status: "In-Progress", createdate: '2020-08-20',
+    //   createdBy: 32, assignedto: 45,
   
-    {
-      id: 62, title: 'Set Up New Laptops',
-      description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? I am now going to write a bunch more here to test whether or not anything breaks when a verrrrry long description is used. This should roughly be the maximum length of a description, right?',
-      startdate: "2021-11-02", completedate: "2021-11-11",
-      status: "Missed", createdate: '2020-08-20',
-      createdby: 42, assignedto: 42,
+    // },
   
-    },
+    // {
+    //   id: 62, title: 'Set Up New Laptops',
+    //   description: 'Jane says that she\'d like a new XPS15, while Max is really itching for a Macbook. Can we get him an M2 chip for his development work? I am now going to write a bunch more here to test whether or not anything breaks when a verrrrry long description is used. This should roughly be the maximum length of a description, right?',
+    //   startdate: "2021-11-02", completedate: "2021-11-11",
+    //   status: "Missed", createdate: '2020-08-20',
+    //   createdBy: 32, assignedto: 32,
   
-    { id: 3876, title: 'Create Killer Robots', 
-      description: 'Pretty self explanatory, really.',
-      startdate: "1989-02-03", completedate: "2040-01-01",
-      status: "Done", createdate: '2020-08-20',
-      createdby: 42, assignedto: 42,
-    },
+    // },
   
-    { id: 3877, title: 'Test Employee Dashboard Frontend', 
-      description: 'Try to break inputs, look for undefined behavior.', 
-      startdate: "2022-10-11", completedate: "2022-10-13",
-      status: "Not-Started", createdate: '2020-08-20',
-      createdby: 42, assignedto: 43,
-    },
+    // { id: 3876, title: 'Create Killer Robots', 
+    //   description: 'Pretty self explanatory, really.',
+    //   startdate: "1989-02-03", completedate: "2040-01-01",
+    //   status: "Done", createdate: '2020-08-20',
+    //   createdBy: 32, assignedto: 32,
+    // },
   
-    { id: 5, title: 'Spend More Time Outside', 
-      description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
-      startdate: "2020-04-13", completedate: "2023-05-16",
-      status: "In-Progress", createdate: '2020-08-20',
-      createdby: 42, assignedto: 42,
+    // { id: 3877, title: 'Test Employee Dashboard Frontend', 
+    //   description: 'Try to break inputs, look for undefined behavior.', 
+    //   startdate: "2022-10-11", completedate: "2022-10-13",
+    //   status: "Not-Started", createdate: '2020-08-20',
+    //   createdBy: 32, assignedto: 43,
+    // },
   
-    },
+    // { id: 5, title: 'Spend More Time Outside', 
+    //   description: 'Vitamin D, fresh air, exercise! Before it gets cold.', 
+    //   startdate: "2020-04-13", completedate: "2023-05-16",
+    //   status: "In-Progress", createdate: '2020-08-20',
+    //   createdBy: 32, assignedto: 32,
   
-  ]);
+    // },
   
-  let totalGoals = goals.length;
+  //]);
+  
   let totalComments = comments.length;
-  
-  let loggedInUser = users.filter((user) => user.currentUser)[0];
+
+
+  const navigate = useNavigate();
+
+  if (state === null){
+    navigate('/');
+  }
   
   const getUserByID = (id) => {
     return users.filter( (user) => user.id===id)[0];
+    
   }
   
   const getGoalByID = (id) => {
@@ -722,16 +771,63 @@ export default function Dashboard() {
   const [topComments, setTopComments] = React.useState(comments.filter((comment)=>comment.eid !== loggedInUser.id).slice(0,numOfCards));
   const [curGoals, setCurGoals] = React.useState(getGoalsByUser(loggedInUser.id));
   const [selectedGoal, setSelectedGoal] = React.useState(curGoals[0]);
+
+  const UpdateLocalFromServer = () => {
+    //assumes users are not deleted or added and ids are immutable
+    setUsers(
+      users.map( async (user) => 
+        await fetch("http://localhost:8000/employee/"+user.id, {
+          method: "GET",
+          headers: { "content-type" : "application/json"},
+        }).then( (u) => convertUserFormat(u) )
+      )
+    )
+
+    let newGoals = [];
+    users.forEach( async (id) =>
+      await fetch("http://localhost:8000/goals/"+id, {
+        method: "GET",
+        headers: { "content-type" : "application/json"},
+      }).then( (data) => data.map((d)=>newGoals=newGoals.concat(convertGoalFormat(d))) ));
+    setGoals(newGoals);
+
+    // TODO actually do something useful here
+    setComments(comments);
+  }
+
   const [curUser, setCurUser] = React.useState(loggedInUser);
 
-  const AddGoal = (newGoal) => {
-    if (!goals.some((goal) => goal.id === newGoal.id)){
-      totalGoals++;
-      newGoal.id = totalGoals;
+  const AddGoal = async (newGoal) => {
+    let backendGoal = {
+      title: newGoal.title, id: newGoal.id===null?-1:newGoal.id,
+      description: newGoal.description,
+      assignee_id: newGoal.assignedto,
+      status: newGoal.status,
+      start_date: new Date(newGoal.startdate),
+      end_date: new Date(newGoal.completedate),
     }
+    // the goal is new, post it
+    if (newGoal.id===null || newGoal.id===-1){
+      const response = await fetch("http://localhost:8000/goals", {
+        method: "POST",
+        headers: { "content-type" : "application/json"},
+        body: JSON.stringify(backendGoal)
+      })
+      response.json().then( (data) => newGoal.id=data.id);
+    }
+    // otherwise, we're updating an existing goal
+    else{
+      await fetch("http://localhost:8000/goals/"+newGoal.id, {
+        method: "PUT",
+        headers: { "content-type" : "application/json"},
+        body: JSON.stringify(backendGoal)
+  
+      })
+    }
+    // remove any goals with newgoal's id, then add newgoal 
     setGoals([newGoal].concat(goals.filter((goal) => goal.id !== newGoal.id)));
 
-    
+    // if goal is in curGoals, update it there too. If newgoal's assignment changed, don't bother replacing the existing goal
     if (curGoals.some( (goal) => goal.id === newGoal.id)){
       let newCurGoals = curGoals.filter((goal) => goal.id !== newGoal.id);
       if (newGoal.assignedto !== curUser.id){
@@ -741,22 +837,22 @@ export default function Dashboard() {
         setCurGoals([newGoal].concat(newCurGoals));
       }
     }
+    // if it isn't in curGoals but should be because its assigned to curUser, toss it in there
     else if (curUser.id === newGoal.assignedto) {
       setCurGoals([newGoal].concat(curGoals));
     }
 
-    console.log(curGoals);
-
+    // if it's the selectedGoal, update it too!
     if (selectedGoal.id === newGoal.id){
       setSelectedGoal(newGoal);
     }
   }
 
-  const AddComment = (newComment) => {
+  const AddComment = (newComment) => { //TODO integrate 
     totalComments++;
     newComment.id=totalComments;
     setComments([newComment].concat(comments));
-    setTopComments(comments.filter((comment)=>comment.eid !== loggedInUser.id).slice(0,numOfCards));
+    setTopComments(comments.filter((comment)=>comment.gid === selectedGoal.id).slice(0,numOfCards));
 
   }
 
@@ -765,7 +861,6 @@ export default function Dashboard() {
     setCurGoals(getGoalsByUser(userID));
   }
 
-  const navigate = useNavigate();
   const [modalShow, setModalShow] = React.useState(false);
   
   const activateModal = (goal) => {
@@ -773,11 +868,7 @@ export default function Dashboard() {
     setModalShow(true);
   }
 
-  const {state} = useLocation();
-  if (state != null){
-    loggedInUser = state.user;
-    console.log(state);
-  }
+
 
   const columns = [
 
@@ -866,7 +957,8 @@ export default function Dashboard() {
             title: "Archive Goal #" + params.id
           },
           () => {
-
+            params.status = "Archived"
+            AddGoal(params)
             setCurGoals( curGoals.filter( (row) => row.id !== params.id ))
             setGoals(goals.filter( (row) => row.id !== params.id))
             
@@ -938,7 +1030,7 @@ export default function Dashboard() {
     
           <br/><br/><br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/><br/><br/>
-          <br/><br/><br/>
+          <br/>
 
           <div>
           {loggedInUser.isManager ? 
