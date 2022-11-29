@@ -39,6 +39,7 @@ async def post_goal(item: schemas.Goal, Session = Depends(get_db)):
     Session.refresh(SQLitem)
     return SQLitem
 
+
 @goals_router.put("/goals/{gid}", status_code=200)
 async def update_goal(gid: int, item: schemas.Goal, Session = Depends(get_db)):
     goal = Session.query(models.Goal).filter(models.Goal.id == gid).first()
@@ -60,7 +61,7 @@ async def update_goal(gid: int, item: schemas.Goal, Session = Depends(get_db)):
     Session.refresh(newGoal)
     return "Done"
 
-'''
+
 @goals_router.get("/demo/goals", response_model=schemas.Goal)
 async def seed_test_goal(sess: Session=Depends(get_db)):
     goal = models.Goal(
@@ -76,4 +77,3 @@ async def seed_test_goal(sess: Session=Depends(get_db)):
 
     sess.refresh(goal)
     return goal
-'''
