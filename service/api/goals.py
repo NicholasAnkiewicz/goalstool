@@ -59,7 +59,7 @@ async def update_goals(gid: int, item: schemas.Goal, Session = Depends(get_db)):
     Session.refresh(newGoal)
     return "Done"
 '''
-@goals_router.get("/goals/demo", response_model=schemas.Goal)
+@goals_router.get("/demo/goals", response_model=schemas.Goal)
 async def seed_test_goal(sess: Session=Depends(get_db)):
     goal = models.Goal(
             title="Demo this route :p",
