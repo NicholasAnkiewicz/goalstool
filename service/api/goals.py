@@ -14,8 +14,8 @@ import random
 
 goals_router = APIRouter()
 
-@goals_router.get("/employee/{eid}/goals", response_model=List[schemas.Goal])
-async def get_goals(eid: int, sess: Session=Depends(get_db)):
+@goals_router.get("/employees/{eid}/goals", response_model=List[schemas.Goal])
+async def get_goals_of_employee(eid: int, sess: Session=Depends(get_db)):
     goals_list = sess.query(models.Goal).filter(models.Goal.assignee_id == eid).all()
     # goals_list = []
     # for goal in goals:
@@ -24,7 +24,7 @@ async def get_goals(eid: int, sess: Session=Depends(get_db)):
     return goals_list
 
 @goals_router.post("/goals", status_code=201)
-async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
+async def post_goal(item: schemas.Goal, Session = Depends(get_db)):
     SQLitem = models.Goal(
         title=item.title,
         description=item.description,
@@ -39,7 +39,7 @@ async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
     return SQLitem
 
 @goals_router.put("/goals/{gid}", status_code=200)
-async def update_goals(gid: int, item: schemas.Goal, Session = Depends(get_db)):
+async def update_goal(gid: int, item: schemas.Goal, Session = Depends(get_db)):
     goal = Session.query(models.Goal).filter(models.Goal.id == gid).first()
     if goal == None:
         return "Not Found"
