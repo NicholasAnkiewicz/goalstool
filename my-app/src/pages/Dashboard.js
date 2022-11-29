@@ -104,7 +104,7 @@ function EmployeeDashboard(props) {
         Recent Comments
       <Container fluid>
       <Row sx={{width: '100%'}}>
-        {topComments.map((comment) => (
+        {topComments.length === 0 ? <div className="fw-italic"><br/> no recent comments... </div>: topComments.map((comment) => (
           <Col key={comment.eid} sx={{height: "300px", width: "25%"}}>
             {CommentCard(comment,getGoalByID,getUserByID,() => activateModal(getGoalByID(comment.gid))  )}
           </Col>
@@ -551,7 +551,7 @@ const convertGoalFormat = (goal) => {
     startdate: goal.start_date.split("T")[0], //just in case, /docs says these could include
     completedate: goal.end_date.split("T")[0], //full datetimes and we just want year-month-day
     status: goal.status,
-    createdate: new Date(), //TODO 
+    createdate: goal.created_at, //TODO 
     createdBy: 33, //TODO
     assignedto: goal.assignee_id
   }
@@ -617,6 +617,7 @@ export default function Dashboard() {
 
   const [goals,setGoals] = React.useState([state.user].concat(state.managedUsers)
     .reduce( (out,user,i) => out.concat(user.goals.map( g => convertGoalFormat(g))),[]));  
+
   const otherUsers = [state.manager].concat(state.managedUsers);
   const [loggedInUser] = React.useState(state.user);
   const [users,setUsers] = React.useState([state.user].concat(
