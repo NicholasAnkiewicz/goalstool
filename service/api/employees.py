@@ -51,7 +51,7 @@ async def post_employee(credentials: schemas.Employee, sess: Session=Depends(get
     sess.refresh(test_employee)
     return test_employee
 
-@employees_router.get("/employees/demo", response_model=schemas.Employee)
+@employees_router.get("/demo/employees", response_model=schemas.Employee)
 async def seed_test_employee(sess: Session=Depends(get_db)):
     test_employee = models.Employee(
                 first_name="Saakshaat",
