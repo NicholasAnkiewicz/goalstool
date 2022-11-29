@@ -24,7 +24,7 @@ auth_router = APIRouter()
 #         raise HTTPException(404, detail=f"Username, password doesn't match!")
 
 @auth_router.post("/auth", response_model=schemas.Employee)
-async def auth(credentials: schemas.AuthPost, sess: Session=Depends(get_db)):
+async def authentication(credentials: schemas.AuthPost, sess: Session=Depends(get_db)):
     auth = sess.query(models.Employee).filter(models.Employee.email == credentials.username, models.Employee.password == credentials.password).first()
     if auth:
         return auth
@@ -32,7 +32,7 @@ async def auth(credentials: schemas.AuthPost, sess: Session=Depends(get_db)):
         raise HTTPException(404, detail=f"Username, password doesn't match!")
 
 @auth_router.get("/demo/auth", response_model= List[schemas.AuthEnd])
-async def authwhatever(sess: Session=Depends(get_db)):
+async def authentication_demo(sess: Session=Depends(get_db)):
     test1 = models.AuthEnd(username = "johndoe@ukg.com", password = "notsafe", employee_ref = 1)
     test2 = models.AuthEnd(username = "jen@ukg.com", password = "notsafeagain", employee_ref = 2)
     test3 = models.AuthEnd(username = "josephdoing@ukg.com", password = "notreallysafe", employee_ref = 3)

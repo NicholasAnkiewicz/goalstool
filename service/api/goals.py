@@ -14,7 +14,7 @@ import random
 
 goals_router = APIRouter()
 
-@goals_router.get("/goals/{eid}", response_model=List[schemas.Goal])
+@goals_router.get("/employee/{eid}/goals", response_model=List[schemas.Goal])
 async def get_goals(eid: int, sess: Session=Depends(get_db)):
     goals_list = sess.query(models.Goal).filter(models.Goal.assignee_id == eid).all()
     # goals_list = []
