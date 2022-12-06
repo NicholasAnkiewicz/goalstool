@@ -41,16 +41,18 @@ function Login() {
     else{
       response.json().then(d => {
 
-      fetch("http://localhost:8000/employee/managedby/"+d.id, {
+      fetch("http://localhost:8000/employees/"+d.id+"/managed-employees", {
       method: "GET",
       headers: { "content-type" : "application/json"},
     }).then( response => response.json()).then( managedUsers => {       
       
-        fetch("http://localhost:8000/employee/"+d.manager_id, {
+        fetch("http://localhost:8000/employees/"+d.manager_id, {
           method: "GET",
           headers: { "content-type" : "application/json"},
         }).then ( response => response.json()).then ( manager => {
         
+          
+
         navigate('./Dashboard', 
           {state: {
             user: {
