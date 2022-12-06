@@ -15,7 +15,7 @@ import schemas
 
 employees_router = APIRouter()
 
-@employees_router.get("/employees", response_model=List[schemas.EmployeeWithReports])
+@employees_router.get("/employees", response_model=List[schemas.Employee])
 async def get_employees(sess: Session=Depends(get_db)):
     return sess.query(models.Employee).all()
 
