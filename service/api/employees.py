@@ -19,19 +19,19 @@ employees_router = APIRouter()
 async def get_employees(sess: Session=Depends(get_db)):
     return sess.query(models.Employee).all()
 
-@employees_router.get("/employee/{id}", response_model=schemas.Employee)
-async def get_employee(id: int, sess: Session=Depends(get_db)):
+@employees_router.get("/employees/{id}", response_model=schemas.Employee)
+async def get_employee_by_id(id: int, sess: Session=Depends(get_db)):
     employee = sess.query(models.Employee).get(id)
     if employee:
         return employee
     else:
         raise HTTPException(404, detail=f"Employee with id {id} not found")
 
-@employees_router.get("/employee/managedby/{id}", response_model=List[schemas.Employee])
-async def get_managed_employees(id: int, sess: Session=Depends(get_db)):
+@employees_router.get("/employees/{id}/managed-employees", response_model=List[schemas.Employee])
+async def get_managed_employees_of_manager(id: int, sess: Session=Depends(get_db)):
     return sess.query(models.Employee).filter(models.Employee.manager_id == id).all()
 
-@employees_router.post("/employee/create/", response_model=schemas.Employee)
+@employees_router.post("/employees", response_model=schemas.Employee)
 async def post_employee(credentials: schemas.Employee, sess: Session=Depends(get_db)):
     test_employee = models.Employee(
                 first_name = credentials.first_name,
@@ -51,7 +51,7 @@ async def post_employee(credentials: schemas.Employee, sess: Session=Depends(get
     sess.refresh(test_employee)
     return test_employee
 
-@employees_router.get("/employees/demo", response_model=schemas.Employee)
+@employees_router.get("/demo/employees", response_model=schemas.Employee)
 async def seed_test_employee(sess: Session=Depends(get_db)):
     test_employee = models.Employee(
                 first_name="Saakshaat",

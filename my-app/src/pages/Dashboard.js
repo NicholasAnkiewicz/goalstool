@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useResolvedPath, resolvePath } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
@@ -324,6 +324,7 @@ function GoalDetailModal(props) {
       createdate: row.createdate,
       status: r,
       assignedto: formDataObj.assignedto,
+      createdate: row.createdate,
       createdBy: row.createdBy,
     }
     changeRow(modifiedObj).then(()=>setChanged(false));
@@ -349,7 +350,7 @@ function GoalDetailModal(props) {
       viewedBy: [],
     }
     if (comment.description !== ""){
-      AddComment(comment);
+      AddComment(comment).then( () => setMakingNewComment(false));
     }
     setMakingNewComment(false);
   } 
@@ -551,7 +552,7 @@ const convertGoalFormat = (goal) => {
     startdate: goal.start_date.split("T")[0], //just in case, /docs says these could include
     completedate: goal.end_date.split("T")[0], //full datetimes and we just want year-month-day
     status: goal.status,
-    createdate: goal.created_at, //TODO 
+    createdate: goal.created_at,
     createdBy: 33, //TODO
     assignedto: goal.assignee_id
   }
@@ -572,7 +573,11 @@ const convertUserFormat = (user) => {
 
 const convertCommentFormat = (comment) => {
   return {
-    // TODO when we get backend comment fields
+    id: comment.id,
+    createdate: new Date(comment.created_at),
+    description: comment.description,
+    gid: comment.goal_id,
+    eid: comment.employee_id,
   }
 }
 
@@ -580,7 +585,7 @@ export default function Dashboard() {
 
   const {state} = useLocation();
 
-  const [comments,setComments] = React.useState([
+
     // {
     //   id: 1, gid: 3877,
     //   description: "I'm hoping to be done with this soon",
@@ -613,7 +618,7 @@ export default function Dashboard() {
     //   eid: 41, createdate: new Date(),
     //   viewedBy: []
     // },
-  ]);
+  //]);
 
   const [goals,setGoals] = React.useState([state.user].concat(state.managedUsers)
     .reduce( (out,user,i) => out.concat(user.goals.map( g => convertGoalFormat(g))),[]));  
@@ -623,6 +628,22 @@ export default function Dashboard() {
   const [users,setUsers] = React.useState([state.user].concat(
     otherUsers.map(u=>convertUserFormat(u))));
 
+  const [comments,setComments] = React.useState([]);
+
+  useEffect(() => {
+    goals.reduce( (out,g,i) => 
+    fetch("http://localhost:8000/goals/"+g.id+"/comments", {
+      method: "GET",
+      headers: { "content-type" : "application/json"},
+    })
+      .then( (response) => response.json())
+      .then( (c) => { return c.detail === "No comments found for goal id "+g.id ? out : 
+        out.concat( c.map( (comment)=>convertCommentFormat(comment))) })
+
+    ,[]).then( (out) => setComments(out));
+  }, []);
+  
+    
     // {
     //   firstname: "Elon",
     //   lastname: "Tusk",
@@ -809,6 +830,7 @@ export default function Dashboard() {
     }
     // the goal is new, post it
     if (newGoal.id===null || newGoal.id===-1){
+      backendGoal.created_at = new Date();
       const response = await fetch("http://localhost:8000/goals", {
         method: "POST",
         headers: { "content-type" : "application/json"},
@@ -818,6 +840,7 @@ export default function Dashboard() {
     }
     // otherwise, we're updating an existing goal
     else{
+      backendGoal.created_at = new Date(newGoal.createdate);
       await fetch("http://localhost:8000/goals/"+newGoal.id, {
         method: "PUT",
         headers: { "content-type" : "application/json"},
@@ -849,9 +872,25 @@ export default function Dashboard() {
     }
   }
 
-  const AddComment = (newComment) => { //TODO integrate 
+  const AddComment = async (newComment) => { //TODO integrate 
     totalComments++;
     newComment.id=totalComments;
+
+    const backendComment = {
+      id: newComment.id,
+      created_at: new Date(),
+      description: newComment.description,
+      goal_id: newComment.gid,
+      employee_id: newComment.eid,
+    }
+
+    const response = await fetch("http://localhost:8000/comments", {
+        method: "POST",
+        headers: { "content-type" : "application/json"},
+        body: JSON.stringify(backendComment)
+      })
+      response.json().then( (data) => newComment.id=data.id);
+
     setComments([newComment].concat(comments));
     setTopComments(comments.filter((comment)=>comment.gid === selectedGoal.id).slice(0,numOfCards));
 
@@ -958,10 +997,12 @@ export default function Dashboard() {
             title: "Archive Goal #" + params.id
           },
           () => {
-            params.status = "Archived"
-            AddGoal(params)
-            setCurGoals( curGoals.filter( (row) => row.id !== params.id ))
-            setGoals(goals.filter( (row) => row.id !== params.id))
+            const row = params.row;
+            row.status = "Archived"
+            AddGoal(row).then( () =>{
+              setCurGoals( curGoals.filter( (r) => r.id !== params.id ))
+              setGoals(goals.filter( (r) => r.id !== params.id))
+            })
             
           }, 
           () => 1,

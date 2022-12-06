@@ -22,7 +22,7 @@ async def get_comments(sess: Session=Depends(get_db)):
 
 # Endpoint to create a comment
 @comments_router.post("/comments", status_code=201, response_model=schemas.Comment)
-async def post_comments(item: schemas.Comment, Session = Depends(get_db)):
+async def post_comment(item: schemas.Comment, Session = Depends(get_db)):
     new_comment = models.Comment(
         description=item.description,
         goal_id=item.goal_id,
@@ -37,7 +37,7 @@ async def post_comments(item: schemas.Comment, Session = Depends(get_db)):
 
 # Endpoint to get a specific comment based on comment id
 @comments_router.get("/comments/{id}", response_model=schemas.Comment)
-async def get_comment_by_comment_id(id: int, sess: Session=Depends(get_db)):
+async def get_comment(id: int, sess: Session=Depends(get_db)):
     comment = sess.query(models.Comment).get(id)
     if comment:
         return comment
@@ -46,7 +46,7 @@ async def get_comment_by_comment_id(id: int, sess: Session=Depends(get_db)):
 
 # Endpoint to get all comments for a goal based on goal id
 @comments_router.get("/goals/{id}/comments", response_model=List[schemas.Comment])
-async def get_comments_by_goal_id(id: int, sess: Session=Depends(get_db)):
+async def get_comments_of_goal(id: int, sess: Session=Depends(get_db)):
     comment = sess.query(models.Comment).filter(models.Comment.goal_id == id).all()
     if comment:
         return comment

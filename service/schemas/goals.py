@@ -7,6 +7,7 @@ from models import GoalStatus
 
 class Goal(BaseModel):
     id: Optional[int]
+    created_at: datetime
     title: str
     description: str
     assignee_id: int
