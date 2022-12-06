@@ -914,28 +914,42 @@ export default function Dashboard() {
       field: 'id', 
       headerName: 'ID', 
       width: 80,
-      description: "The goal's unique 'id'entifier, or ID"
+      description: "A goal's unique 'id'entifier, or ID"
     },
   
     { 
       field: 'title', 
       headerName: 'Title', 
       flex: 0.5,
-      description: "What the goal is!",
       minWidth: 200,
     },
-  
     { 
       field: 'description', 
       headerName: 'Description', 
       flex: 1,
-      description: "More information about what the goal entails",
+      description: "Describing what a goal entails!",
       minWidth: 100,
     },
   
     {
+      field: 'createdBy',
+      description: 'Who created a goal',
+      headerName: 'Author',
+      valueGetter: ({ value }) => getUserByID(value).firstname+" "+getUserByID(value).lastname,
+      width: 140,
+    },
+    {
+      field: 'createdate',
+      description: 'When a goal was created',
+      headerName: 'Created On',
+      type: 'date',
+      valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
+      width: 140,
+    },
+
+    {
       field: 'startdate',
-      description: 'The date of start for the goal',
+      description: 'The stated start date for a goal',
       headerName: 'Start Date',
       type: 'date',
       valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
