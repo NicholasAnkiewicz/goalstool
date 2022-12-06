@@ -31,12 +31,14 @@ async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
         assignee_id=item.assignee_id,
         status=item.status,
         start_date=item.start_date,
-        end_date = item.end_date
+        end_date = item.end_date,
+        created_by = item.created_by
     )
     Session.add(SQLitem)
     Session.commit()
     Session.refresh(SQLitem)
     return SQLitem
+
 @goals_router.put("/goals/{gid}", status_code=200)
 async def update_goals(gid: int, item: schemas.Goal, Session = Depends(get_db)):
     goals = Session.query(models.Goal).all()
@@ -51,12 +53,15 @@ async def update_goals(gid: int, item: schemas.Goal, Session = Depends(get_db)):
                 assignee_id=item.assignee_id,
                 status=item.status,
                 start_date=item.start_date,
-                end_date = item.end_date
+                end_date = item.end_date,
+                created_by = item.created_by
             )
     Session.add(goal)
     Session.commit()
     Session.refresh(goal)
     return "Done"
+
+
 '''
 @goals_router.get("/goals/demo", response_model=schemas.Goal)
 async def seed_test_goal(sess: Session=Depends(get_db)):

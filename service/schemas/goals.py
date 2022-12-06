@@ -13,6 +13,7 @@ class Goal(BaseModel):
     status: GoalStatus
     start_date: datetime
     end_date: Optional[datetime]
+    created_by: int
 
     class Config:
         orm_mode = True # lets pydantic convert SQLAlchemy object <-> JSON
