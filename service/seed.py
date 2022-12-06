@@ -21,7 +21,8 @@ for file in os.listdir("seeds"):
                company_name=entry["companyName"],
                position_title=entry["positionTitle"],
                current = True,
-               password=entry["password"]
+               password=entry["password"],
+               manager_id=f"{entry['managerId']}_{entry['companyId']}"
                )
             sess.add(employee)
             sess.commit()
