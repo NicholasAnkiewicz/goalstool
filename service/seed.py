@@ -22,7 +22,7 @@ for file in os.listdir("seeds"):
                position_title=entry["positionTitle"],
                current = True,
                password=entry["password"],
-               manager_id=f"{entry['managerId']}_{entry['companyId']}"
+               manager_id=f"{entry.get('managerId')}_{entry['companyId']}"
                )
             sess.add(employee)
             sess.commit()
