@@ -21,3 +21,4 @@ class Goal(Base, BaseModel):
     status = Column(Enum(GoalStatus))
     start_date = Column(DateTime)    
     end_date = Column(DateTime, nullable=True)
+    created_by = Column(Integer)
