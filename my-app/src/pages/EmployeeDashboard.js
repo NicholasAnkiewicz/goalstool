@@ -65,6 +65,7 @@ export default function EmployeeDashboard(props) {
         </div>
       </div>
       <DataGrid
+        sx = {{cursor: "grab"}}
         rows={curGoals}
         columns={columns}
         onRowClick={

@@ -276,7 +276,7 @@ export default function Dashboard() {
       headerName: 'Description', 
       flex: 1,
       description: "Describing what a goal entails!",
-      minWidth: 100,
+      minWidth: 50,
     },
   
     {
@@ -284,7 +284,7 @@ export default function Dashboard() {
       description: 'Who created a goal',
       headerName: 'Author',
       valueGetter: ({ value }) => getUserByID(value).firstname+" "+getUserByID(value).lastname,
-      width: 140,
+      width: 200,
     },
     {
       field: 'createdate',
@@ -292,7 +292,7 @@ export default function Dashboard() {
       headerName: 'Created On',
       type: 'date',
       valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
-      width: 140,
+      width: 200,
     },
 
     {
@@ -301,7 +301,7 @@ export default function Dashboard() {
       headerName: 'Start Date',
       type: 'date',
       valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
-      width: 130,
+      width: 170,
     },
   
     {
@@ -310,14 +310,14 @@ export default function Dashboard() {
       headerName: 'Completion Date',
       type: 'date',
       valueGetter: ({ value }) => value && new Date(value).toISOString().split("T")[0],
-      width: 200,
+      width: 220,
     },
   
     {
       field: 'status',
       description: 'Not-Started/In-Progress/Done/Missed',
       headerName: 'Status',
-      width: 120,
+      width: 140,
       renderCell: (params) => {
 
         if (params.value === "Done"){return <Box sx={{color: "rgba(0,0,0,1)"}}><CheckCircleIcon />Done</Box>}
@@ -335,7 +335,7 @@ export default function Dashboard() {
       description: 'Click for Full Goal Information!',
       sortable: false,
       filterable: false,
-      width: 110,
+      width: 140,
   
       getActions: (params) => [
         <GridActionsCellItem icon={<ReviewsIcon color="primary" />} 
@@ -353,7 +353,7 @@ export default function Dashboard() {
       description: 'Archive the goal!',
       sortable: false,
       filterable: false,
-      width: 110,
+      width: 140,
   
       getActions: (params) => [
         
@@ -409,7 +409,7 @@ export default function Dashboard() {
 
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
-            <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
+            <Navbar.Text style={{paddingRight: '3px',cursor: "pointer"}} className="fw-bold navbar-light">
               Signed in as <Button style={{marginRight: '5px'}} className="btn-md"><strong>{loggedInUser.firstname}</strong></Button>
               ID: {loggedInUser.eid}
             <Button className="m-1" variant="warning" onClick={handelLogout}>Logout</Button>
