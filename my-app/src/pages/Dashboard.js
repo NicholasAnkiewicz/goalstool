@@ -26,8 +26,11 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-
-
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RunCircleIcon from '@mui/icons-material/RunCircle';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 
 const numOfCards = 4;
 
@@ -637,9 +640,10 @@ export default function Dashboard() {
       headers: { "content-type" : "application/json"},
     })
     .then( (response) => response.json())
-    .then( (c) => {         console.log("HEY!",out);
+    .then( (c) => {
       if (c.detail === "No comments found for goal id "+g.id) {return out;} 
-      else {return out.then( (o) => o.concat( c.map( (comment)=>convertCommentFormat(comment) ) ));}})
+      else {return out.then( (o) => o.concat( c.map( (comment)=>convertCommentFormat(comment) ) ));}
+    })
     ,Promise.resolve([])).then( setComments );
   }, []);
   
@@ -779,8 +783,6 @@ export default function Dashboard() {
   }
 
   const getCommentsByGoal = (id) => {
-    console.log(id);
-    console.log(comments);
     return comments.filter( (comment) => comment.gid === id);
   }
   
@@ -874,7 +876,7 @@ export default function Dashboard() {
     }
   }
 
-  const AddComment = async (newComment) => { //TODO integrate 
+  const AddComment = async (newComment) => { 
     totalComments++;
     newComment.id=totalComments;
 
@@ -960,6 +962,25 @@ export default function Dashboard() {
       description: 'Not-Started/In-Progress/Done/Missed',
       headerName: 'Status',
       width: 120,
+      renderCell: (params) => {
+
+        // sx={{
+        //   '& .super-app-theme--Not-Started': {backgroundColor: 'rgba(0, 255, 255, 0.25)',
+        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 255, 0.5)')}},
+        //   '& .super-app-theme--In-Progress': {backgroundColor: 'rgba(0, 255, 0, 0.25)',
+        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 0, 0.5)')}},
+        //   '& .super-app-theme--Done': {backgroundColor: 'rgba(0, 0, 0, 0.25)', color: 'text.disabled',
+        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 0, 0, 0.5)'),}},
+        //   '& .super-app-theme--Missed': {backgroundColor: 'rgba(255, 0, 0, 0.25)',
+        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(255, 0, 0, 0.5)')}},
+        // }}
+
+        if (params.value === "Done"){return <Box sx={{color: "rgba(0,0,0,1)"}}><CheckCircleIcon />Done</Box>}
+        else if (params.value === "Missed"){return <Box sx={{color: "rgba(210,0,0,1)"}}><StopCircleIcon />Missed</Box>}
+        else if (params.value === "Not-Started"){return <Box sx={{color: "rgba(0,140,140,1)"}}><RadioButtonUncheckedIcon/>Not-Started</Box>}
+        else if (params.value === "In-Progress"){return <Box sx={{color: "rgba(0,160,0,1)"}}> <PlayCircleIcon/>In-Progress</Box>}
+        else {return "?"}
+      }
     },
   
     {

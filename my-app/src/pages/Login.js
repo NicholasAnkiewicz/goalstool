@@ -129,7 +129,8 @@ function Login() {
           </Card>
           
         </Col>
-        <Button className="btn-sm border-0 bg-warning" type="submit" onClick={()=> navigate('./Dashboard',           {state: {user: {
+        <Button className="btn-sm border-0 bg-warning" type="submit" onClick={()=> navigate('./Dashboard',           {state: {
+          user: {
             firstname: "Jim",
             lastname: "Johnson",
             id: 33,
@@ -141,7 +142,21 @@ function Login() {
             mid: 42,
             isManager: true,
             goals: []
-            }
+            },
+          managedUsers: [],
+          manager: {
+            firstname: "Tim",
+            lastname: "Thompson",
+            id: 42,
+            employee_id: 0,
+            email: "tim@acme.com",
+            companyid: 4,
+            companyname: "acme",
+            title: "middle manager",
+            mid: 9999,
+            isManager: true,
+            goals: []
+            },
           } })}>
           Temporary Access
         </Button>
