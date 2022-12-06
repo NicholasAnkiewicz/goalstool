@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'react-bootstrap/Image';
 import logo from './login_logo.png';
 import Container from 'react-bootstrap/Container';
@@ -10,6 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-bootstrap/Modal';
 import Card from 'react-bootstrap/Card';
 import { useNavigate } from "react-router-dom";
+import Cookies from 'universal-cookie'
 
 
 function Login() {
@@ -18,7 +19,16 @@ function Login() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const navigate = useNavigate();
-  
+  const cookies = new Cookies();
+ 
+  useEffect(() => {
+    const user = cookies.get("username")
+    const pass = cookies.get("password")
+    if (user && pass){
+      fetchUser(user, pass)
+    }
+  }, [""]);
+
   const onFormSubmit = e => {
     e.preventDefault()
     const formData = new FormData(e.target),
@@ -39,6 +49,8 @@ function Login() {
       setIncorrect(true);
     }
     else{
+      cookies.set("username", username, { path: '/', maxAge: 3600});
+      cookies.set("password", password, { path: '/', maxAge: 3600});
       response.json().then(d => {
 
       fetch("http://localhost:8000/employees/"+d.id+"/managed-employees", {

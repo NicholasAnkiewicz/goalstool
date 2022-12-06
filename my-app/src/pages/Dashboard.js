@@ -31,6 +31,9 @@ import RunCircleIcon from '@mui/icons-material/RunCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import Cookies from 'universal-cookie'
+
+
 
 const numOfCards = 4;
 
@@ -44,15 +47,6 @@ function EmployeeDashboard(props) {
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
   
-  // Below code not in use
-  const dateComp = (str) => {
-    const today = new Date()
-    const [day, month, year] = str.split("/");
-    const date = new Date(+year, month - 1, +day);
-    return date.getTime() > today.getTime() ? true : false
-  }
-  // Above code not in use
-
   return (
     <div style={{  height: 410, width: '100%' }}>
       <div className="p-1 d-flex justify-content-between align-items-center">
@@ -964,17 +958,6 @@ export default function Dashboard() {
       width: 120,
       renderCell: (params) => {
 
-        // sx={{
-        //   '& .super-app-theme--Not-Started': {backgroundColor: 'rgba(0, 255, 255, 0.25)',
-        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 255, 0.5)')}},
-        //   '& .super-app-theme--In-Progress': {backgroundColor: 'rgba(0, 255, 0, 0.25)',
-        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 0, 0.5)')}},
-        //   '& .super-app-theme--Done': {backgroundColor: 'rgba(0, 0, 0, 0.25)', color: 'text.disabled',
-        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 0, 0, 0.5)'),}},
-        //   '& .super-app-theme--Missed': {backgroundColor: 'rgba(255, 0, 0, 0.25)',
-        //     '&:hover': {bgcolor: getHoverBackgroundColor('rgba(255, 0, 0, 0.5)')}},
-        // }}
-
         if (params.value === "Done"){return <Box sx={{color: "rgba(0,0,0,1)"}}><CheckCircleIcon />Done</Box>}
         else if (params.value === "Missed"){return <Box sx={{color: "rgba(210,0,0,1)"}}><StopCircleIcon />Missed</Box>}
         else if (params.value === "Not-Started"){return <Box sx={{color: "rgba(0,140,140,1)"}}><RadioButtonUncheckedIcon/>Not-Started</Box>}
@@ -1037,7 +1020,12 @@ export default function Dashboard() {
     }
   
   ];
-
+  const cookies = new Cookies();
+  const handelLogout = () =>{
+    cookies.remove('username');
+    cookies.remove('password');
+    navigate('/');
+  }
   return (
 
     <div>
@@ -1062,7 +1050,7 @@ export default function Dashboard() {
             <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
               Signed in as <Button style={{marginRight: '5px'}} className="btn-md"><strong>{loggedInUser.firstname}</strong></Button>
               ID: {loggedInUser.eid}
-            <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
+            <Button className="m-1" variant="warning" onClick={handelLogout}>Logout</Button>
 
             </Navbar.Text>
           </Navbar.Collapse>
