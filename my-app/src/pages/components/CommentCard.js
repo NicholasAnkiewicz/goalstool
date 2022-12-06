@@ -22,7 +22,9 @@ export default function CommentCard(comment,getGoal,getUser,onClick) {
       <CardActionArea onClick={onClick}>
         <CardHeader sx={{height: '60px'}}
           avatar={
-            <Avatar sx={ comment.viewedBy.includes(comment.author) ? { bgcolor: blue[500] } : { bgcolor: red[500] } }>
+            //<Avatar sx={ comment.viewedBy.includes(comment.author) ? { bgcolor: blue[500] } : { bgcolor: red[500] } }>
+            <Avatar sx={  { bgcolor: blue[500] } }>
+  
               {employee.firstname[0]}
             </Avatar>
           }

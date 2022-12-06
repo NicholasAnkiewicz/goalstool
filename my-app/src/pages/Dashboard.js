@@ -438,7 +438,7 @@ function GoalDetailModal(props) {
               placeholder=""
               readOnly
               disabled
-              value={row.createdate}
+              value={row.createdate.split("T")[0]}
             />
           </Form.Group>
           </Col>
@@ -636,11 +636,11 @@ export default function Dashboard() {
       method: "GET",
       headers: { "content-type" : "application/json"},
     })
-      .then( (response) => response.json())
-      .then( (c) => { return c.detail === "No comments found for goal id "+g.id ? out : 
-        out.concat( c.map( (comment)=>convertCommentFormat(comment))) })
-
-    ,[]).then( (out) => setComments(out));
+    .then( (response) => response.json())
+    .then( (c) => {         console.log("HEY!",out);
+      if (c.detail === "No comments found for goal id "+g.id) {return out;} 
+      else {return out.then( (o) => o.concat( c.map( (comment)=>convertCommentFormat(comment) ) ));}})
+    ,Promise.resolve([])).then( setComments );
   }, []);
   
     
@@ -779,6 +779,8 @@ export default function Dashboard() {
   }
 
   const getCommentsByGoal = (id) => {
+    console.log(id);
+    console.log(comments);
     return comments.filter( (comment) => comment.gid === id);
   }
   
