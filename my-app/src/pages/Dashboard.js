@@ -26,6 +26,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import Cookies from 'universal-cookie'
 
 
 
@@ -41,15 +42,6 @@ function EmployeeDashboard(props) {
   const getHoverBackgroundColor = (color, mode) =>
     mode === 'dark' ? darken(color, 0.5) : lighten(color, 0.3);
   
-  // Below code not in use
-  const dateComp = (str) => {
-    const today = new Date()
-    const [day, month, year] = str.split("/");
-    const date = new Date(+year, month - 1, +day);
-    return date.getTime() > today.getTime() ? true : false
-  }
-  // Above code not in use
-
   return (
     <div style={{  height: 410, width: '100%' }}>
       <div className="p-1 d-flex justify-content-between align-items-center">
@@ -1016,7 +1008,12 @@ export default function Dashboard() {
     }
   
   ];
-
+  const cookies = new Cookies();
+  const handelLogout = () =>{
+    cookies.remove('username');
+    cookies.remove('password');
+    navigate('/');
+  }
   return (
 
     <div>
@@ -1041,7 +1038,7 @@ export default function Dashboard() {
             <Navbar.Text style={{paddingRight: '3px'}} className="fw-bold navbar-light">
               Signed in as <Button style={{marginRight: '5px'}} className="btn-md"><strong>{loggedInUser.firstname}</strong></Button>
               ID: {loggedInUser.eid}
-            <Button className="m-1" variant="warning" onClick={()=>navigate('/')}>Logout</Button>
+            <Button className="m-1" variant="warning" onClick={handelLogout}>Logout</Button>
 
             </Navbar.Text>
           </Navbar.Collapse>
