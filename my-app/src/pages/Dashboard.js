@@ -145,7 +145,6 @@ export default function Dashboard() {
     managedUsers: userManager_cookie.managedUsers,
     manager: userManager_cookie.manager,
     }
-    console.log(s)
     state = s
   } 
 
