@@ -75,9 +75,79 @@ const convertCommentFormat = (comment) => {
   }
 }
 
-export default function Dashboard() {
+const cookies = new Cookies();
+const updateCookie = async (username,password) => {
+  const response = await fetch(
+    "http://localhost:8000/auth",
+    { 
+      method: "POST",
+      headers: { "content-type" : "application/json" },
+      body: JSON.stringify({username: username, password: password})
+    }
+  )
+  if (response.status === 404){
+    console.log("404")
+  }
+  else{
+    cookies.set("username", username, { path: '/', maxAge: 3600});
+    cookies.set("password", password, { path: '/', maxAge: 3600});
+    response.json().then(d => {
+    fetch("http://localhost:8000/employees/"+d.id+"/managed-employees", {
+    method: "GET",
+    headers: { "content-type" : "application/json"},
+  }).then( response => response.json()).then( managedUsers => {
+      fetch("http://localhost:8000/employees/"+d.manager_id, {
+        method: "GET",
+        headers: { "content-type" : "application/json"},
+      }).then ( response => response.json()).then ( manager => {
+      cookies.set("userInfo", {user: {
+        firstname: d.first_name,
+        lastname: d.last_name,
+        id: d.id,
+        employee_id: d.employee_id,
+        email: d.email,
+        companyid: d.company_id,
+        companyname: d.company_name,
+        title: d.position_title,
+        mid: d.manager_id,
+        isManager: d.is_manager,
+        goals: d.goals}
+      }, {path: '/', maxAge: 3600})
+      cookies.set("userManager", {
+        managedUsers: managedUsers,
+        manager: manager}, 
+        {path: '/', maxAge: 3600})
+      })});
+    })}};
 
-  const {state} = useLocation();
+export default function Dashboard() {
+  const cookies = new Cookies();
+  const username_cookie = cookies.get('username')
+  const password_cookie = cookies.get('password')
+  updateCookie(username_cookie, password_cookie)
+  const userInfo_cookie = cookies.get('userInfo')
+  const userManager_cookie = cookies.get('userManager')
+  var {state} = useLocation();
+  if (userInfo_cookie && userManager_cookie) {
+    var s = {user:{
+      firstname: userInfo_cookie.user.firstname,
+      lastname: userInfo_cookie.user.lastname,
+      id: userInfo_cookie.user.id,
+      employee_id: userInfo_cookie.user.employeeid,
+      email: userInfo_cookie.user.email,
+      companyid: userInfo_cookie.user.companyid,
+      companyname: userInfo_cookie.user.companyname,
+      title: userInfo_cookie.user.positiontitle,
+      mid: userInfo_cookie.user.mid,
+      isManager: userInfo_cookie.user.isManager,
+      goals: userInfo_cookie.user.goals
+    },
+    managedUsers: userManager_cookie.managedUsers,
+    manager: userManager_cookie.manager,
+    }
+    console.log(s)
+    state = s
+  } 
 
   const [goals,setGoals] = React.useState([state.user].concat(state.managedUsers)
     .reduce( (out,user,i) => out.concat(user.goals.map( g => convertGoalFormat(g))),[]));  
@@ -382,10 +452,11 @@ export default function Dashboard() {
     }
   
   ];
-  const cookies = new Cookies();
   const handelLogout = () =>{
     cookies.remove('username');
     cookies.remove('password');
+    cookies.remove('userInfo')
+    cookies.remove('userManager')
     navigate('/');
   }
   return (

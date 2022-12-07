@@ -65,7 +65,6 @@ export default function EmployeeDashboard(props) {
         </div>
       </div>
       <DataGrid
-        sx = {{cursor: "grab"}}
         rows={curGoals}
         columns={columns}
         onRowClick={
@@ -85,7 +84,7 @@ export default function EmployeeDashboard(props) {
         pageSize={5}
         goalsPerPageOptions={[5]}
         checkboxSelection={false}
-        sx={{
+        sx={{cursor: "grab",
           '& .super-app-theme--Not-Started': {backgroundColor: 'rgba(0, 255, 255, 0.25)',
             '&:hover': {bgcolor: getHoverBackgroundColor('rgba(0, 255, 255, 0.5)')}},
           '& .super-app-theme--In-Progress': {backgroundColor: 'rgba(0, 255, 0, 0.25)',

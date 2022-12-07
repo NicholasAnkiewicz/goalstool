@@ -62,9 +62,21 @@ function Login() {
           method: "GET",
           headers: { "content-type" : "application/json"},
         }).then ( response => response.json()).then ( manager => {
-        
-          
-
+        cookies.set("userInfo", {user: {
+          firstname: d.first_name,
+          lastname: d.last_name,
+          id: d.id,
+          employee_id: d.employee_id,
+          email: d.email,
+          companyid: d.company_id,
+          companyname: d.company_name,
+          title: d.position_title,
+          mid: d.manager_id,
+          isManager: d.is_manager,
+          goals: d.goals}}, {path: '/', maxAge: 3600})
+        cookies.set("userManager", {
+          managedUsers: managedUsers,
+          manager: manager}, {path: '/', maxAge: 3600})
         navigate('./Dashboard', 
           {state: {
             user: {
@@ -85,11 +97,7 @@ function Login() {
           } }
        )})});
       });
-      
     }
-    
-     
-    
   }
 
 
