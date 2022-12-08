@@ -1,12 +1,13 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
 from models import GoalStatus
 
+from .comments import Comment
+
 class Goal(BaseModel):
-    id: Optional[int]
     title: str
     description: str
     assignee_id: int
@@ -15,5 +16,8 @@ class Goal(BaseModel):
     end_date: Optional[datetime]
     created_by: int
 
+class GoalGet(Goal):
+    id: int
+    comments: List[Comment] = []
     class Config:
         orm_mode = True # lets pydantic convert SQLAlchemy object <-> JSON

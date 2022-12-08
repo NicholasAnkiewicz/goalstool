@@ -6,7 +6,7 @@ from random import randrange, choice
 from models.base import Base, engine
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from models import Employee, AuthEnd, Goal, GoalStatus
+from models import Employee, AuthEnd, Goal, GoalStatus, Comment
 
 from faker import Faker
 
@@ -49,13 +49,22 @@ for file in os.listdir("seeds/employees"):
                 goal = Goal(
                     title = fake.text(),
                     description = fake.text(),
-                    assignee_id = employee.id,
-                    status = choice(list(GoalStatus)),
+                    assignee_id = employee.id, status = choice(list(GoalStatus)),
                     start_date = datetime.datetime.today(),
                     created_by = randrange(tot_employees)
                 )
 
                 sess.add(goal)
                 sess.commit()
+                sess.refresh(goal)
+
+                for j in range(randrange(4)):
+                    comment = Comment(
+                        description = fake.text(),
+                        goal_id = goal.id
+                    )
+
+                    sess.add(comment)
+                    sess.commit()
 
 print("Seed Complete!")
