@@ -14,7 +14,7 @@ import random
 
 goals_router = APIRouter()
 
-@goals_router.get("/goals/{eid}", response_model=List[schemas.Goal])
+@goals_router.get("/goals/{eid}", response_model=List[schemas.GoalGet])
 async def get_goals(eid: int, sess: Session=Depends(get_db)):
     goals = sess.query(models.Goal).all()
     goals_list = []
@@ -23,7 +23,7 @@ async def get_goals(eid: int, sess: Session=Depends(get_db)):
             goals_list.append(goal)
     return goals_list
 
-@goals_router.post("/goals", status_code=201)
+@goals_router.post("/goals", status_code=201, response_model=schemas.GoalGet)
 async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
     SQLitem = models.Goal(
         title=item.title,
@@ -39,7 +39,7 @@ async def post_goals(item: schemas.Goal, Session = Depends(get_db)):
     Session.refresh(SQLitem)
     return SQLitem
 
-@goals_router.put("/goals/{gid}", status_code=200)
+@goals_router.put("/goals/{gid}", status_code=200, response_model=schemas.GoalGet)
 async def update_goals(gid: int, item: schemas.Goal, Session = Depends(get_db)):
     goals = Session.query(models.Goal).all()
     for goal in goals:

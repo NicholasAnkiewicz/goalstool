@@ -1,15 +1,21 @@
 import os
 import json
+import datetime
+from random import randrange, choice
+
 from models.base import Base, engine
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from models import Employee, AuthEnd
+from models import Employee, AuthEnd, Goal, GoalStatus, Comment
+
+from faker import Faker
 
 sess = Session(engine)
+fake = Faker()
 
     
-for file in os.listdir("seeds"):
-   with open(f"seeds/{file}") as f:
+for file in os.listdir("seeds/employees"):
+   with open(f"seeds/employees/{file}") as f:
         data = (json.load(f))
         for entry in data:
             employee = Employee(
@@ -35,5 +41,30 @@ for file in os.listdir("seeds"):
             )
             sess.add(login)
             sess.commit()
+
+            tot_employees = sess.query(Employee).count()
+
+            # seeding a random number of goals per user
+            for i in range(randrange(10)):
+                goal = Goal(
+                    title = fake.text(),
+                    description = fake.text(),
+                    assignee_id = employee.id, status = choice(list(GoalStatus)),
+                    start_date = datetime.datetime.today(),
+                    created_by = randrange(tot_employees)
+                )
+
+                sess.add(goal)
+                sess.commit()
+                sess.refresh(goal)
+
+                for j in range(randrange(4)):
+                    comment = Comment(
+                        description = fake.text(),
+                        goal_id = goal.id
+                    )
+
+                    sess.add(comment)
+                    sess.commit()
 
 print("Seed Complete!")
