@@ -19,5 +19,7 @@ class Goal(Base, BaseModel):
     assignee_id = Column(Integer, ForeignKey("employees.id"))
     assignee = relationship("Employee", back_populates="goals")
     status = Column(Enum(GoalStatus))
+    comments = relationship("Comment")
     start_date = Column(DateTime)    
     end_date = Column(DateTime, nullable=True)
+    created_by = Column(Integer)

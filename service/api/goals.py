@@ -32,7 +32,8 @@ async def post_goal(item: schemas.Goal, Session = Depends(get_db)):
         assignee_id=item.assignee_id,
         status=item.status,
         start_date=item.start_date,
-        end_date = item.end_date
+        end_date = item.end_date,
+        created_by = item.created_by
     )
     Session.add(SQLitem)
     Session.commit()
@@ -60,20 +61,3 @@ async def update_goal(gid: int, item: schemas.Goal, Session = Depends(get_db)):
     Session.commit()
     Session.refresh(newGoal)
     return "Done"
-
-
-@goals_router.get("/demo/goals", response_model=schemas.Goal)
-async def seed_test_goal(sess: Session=Depends(get_db)):
-    goal = models.Goal(
-            title="Demo this route :p",
-            description="This is a dummy goal. The purpose of this goal is to create a goal row in the database for the demo on Thursday. This seed will be replaced by a POST route for the frontend to use",
-            assignee_id=1,
-            status=models.GoalStatus.to_do,
-            start_date=(datetime.date.today()),
-            end_date=(datetime.date.today() + datetime.timedelta(days=1))
-            )
-    sess.add(goal)
-    sess.commit()
-
-    sess.refresh(goal)
-    return goal

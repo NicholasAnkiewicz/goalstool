@@ -16,10 +16,14 @@ class Employee(BaseModel):
     company_name: str
     position_title: str
     current: bool = True
-    is_manager: bool = True
     password: str = ''
+    created_at: datetime
     manager_id: int
     goals: List[Goal] = []
+    manager_id: str = None
 
     class Config:
         orm_mode = True # lets pydantic convert SQLAlchemy object <-> JSON
+
+class EmployeeWithReports(Employee):
+    reports: List[Employee] = []
