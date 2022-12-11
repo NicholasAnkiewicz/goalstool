@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'react-bootstrap/Image';
 import logo from './login_logo.png';
 import Container from 'react-bootstrap/Container';
@@ -10,36 +10,93 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-bootstrap/Modal';
 import Card from 'react-bootstrap/Card';
 import { useNavigate } from "react-router-dom";
+import Cookies from 'universal-cookie'
 
 
 function Login() {
   const [show, setShow] = useState(false);
+  const [incorrect,setIncorrect] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const navigate = useNavigate();
+  const cookies = new Cookies();
+ 
+  useEffect(() => {
+    const user = cookies.get("username")
+    const pass = cookies.get("password")
+    if (user && pass){
+      fetchUser(user, pass)
+    }
+  }, [""]);
+
   const onFormSubmit = e => {
     e.preventDefault()
     const formData = new FormData(e.target),
       formDataObj = Object.fromEntries(formData.entries())
-    fetchUser(formDataObj.id,formDataObj.password)
+    fetchUser(formDataObj.eid,formDataObj.password)
   }
 
   const fetchUser = async (username,password) => {
     const response = await fetch(
-      "http://localhost:8000/auth&username="+username+"&password="+password,
+      "http://localhost:8000/auth",
       { 
-        method: "GET",
+        method: "POST",
         headers: { "content-type" : "application/json" },
+        body: JSON.stringify({username: username, password: password})
       }
     )
-  
-    if (response === null){console.log("TIMED OUT")}
-    const data = response.json();
-    if (data !== null){
-      navigate('./Dashboard', {user: data.user})
+    if (response.status === 404){
+      setIncorrect(true);
     }
     else{
-      console.log("Data is null!")
+      cookies.set("username", username, { path: '/', maxAge: 3600});
+      cookies.set("password", password, { path: '/', maxAge: 3600});
+      response.json().then(d => {
+
+      fetch("http://localhost:8000/employees/"+d.id+"/managed-employees", {
+      method: "GET",
+      headers: { "content-type" : "application/json"},
+    }).then( response => response.json()).then( managedUsers => {       
+      
+        fetch("http://localhost:8000/employees/"+d.manager_id, {
+          method: "GET",
+          headers: { "content-type" : "application/json"},
+        }).then ( response => response.json()).then ( manager => {
+        cookies.set("userInfo", {user: {
+          firstname: d.first_name,
+          lastname: d.last_name,
+          id: d.id,
+          employee_id: d.employee_id,
+          email: d.email,
+          companyid: d.company_id,
+          companyname: d.company_name,
+          title: d.position_title,
+          mid: d.manager_id,
+          isManager: d.is_manager,
+          goals: d.goals}}, {path: '/', maxAge: 3600})
+        cookies.set("userManager", {
+          managedUsers: managedUsers,
+          manager: manager}, {path: '/', maxAge: 3600})
+        navigate('./Dashboard', 
+          {state: {
+            user: {
+            firstname: d.first_name,
+            lastname: d.last_name,
+            id: d.id,
+            employee_id: d.employee_id,
+            email: d.email,
+            companyid: d.company_id,
+            companyname: d.company_name,
+            title: d.position_title,
+            mid: d.manager_id,
+            isManager: d.is_manager,
+            goals: d.goals
+            },
+            managedUsers: managedUsers,
+            manager: manager,
+          } }
+       )})});
+      });
     }
   }
 
@@ -85,13 +142,42 @@ function Login() {
                     Login
                   </Button>
                 </div>
+                {incorrect?"Your Username or Password was Incorrect":""}
               </Form>
 
             </Card.Body>
           </Card>
           
         </Col>
-        <Button className="btn-sm border-0 bg-warning" type="submit" onClick={()=> navigate('./Dashboard')}>
+        <Button className="btn-sm border-0 bg-warning" type="submit" onClick={()=> navigate('./Dashboard',           {state: {
+          user: {
+            firstname: "Jim",
+            lastname: "Johnson",
+            id: 33,
+            employee_id: 0,
+            email: "jimjohnson@acme.com",
+            companyid: 4,
+            companyname: "acme",
+            title: "middle manager",
+            mid: 42,
+            isManager: true,
+            goals: []
+            },
+          managedUsers: [],
+          manager: {
+            firstname: "Tim",
+            lastname: "Thompson",
+            id: 42,
+            employee_id: 0,
+            email: "tim@acme.com",
+            companyid: 4,
+            companyname: "acme",
+            title: "middle manager",
+            mid: 9999,
+            isManager: true,
+            goals: []
+            },
+          } })}>
           Temporary Access
         </Button>
       </Row>

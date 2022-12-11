@@ -5,9 +5,14 @@
 #basic-nav-dropdown {
     color: white;
 }
+.MuiDataGrid-columnHeaderTitle, th.MuiTableCell-root {
+    font-size: x-large; 
+}
 
-.MuiDataGrid-columnHeaderTitle, .MuiDataGrid-cellContent, th.MuiTableCell-root, td.MuiTableCell-root {
+.MuiDataGrid-cellContent, td.MuiTableCell-root {
     font-size: large;
+    cursor: pointer; 
+
 }
 
 p.MuiTablePagination-displayedRows{

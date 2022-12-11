@@ -7,6 +7,7 @@ from .goals import Goal
 
 class Employee(BaseModel):
     id: Optional[int]
+    created_at: datetime
     first_name: str
     last_name: str
     employee_id: str
@@ -17,6 +18,7 @@ class Employee(BaseModel):
     current: bool = True
     password: str = ''
     created_at: datetime
+    manager_id: int
     goals: List[Goal] = []
     manager_id: str = None
 

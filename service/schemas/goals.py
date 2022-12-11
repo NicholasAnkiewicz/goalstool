@@ -8,6 +8,8 @@ from models import GoalStatus
 from .comments import Comment
 
 class Goal(BaseModel):
+    id: Optional[int]
+    created_at: datetime
     title: str
     description: str
     assignee_id: int
