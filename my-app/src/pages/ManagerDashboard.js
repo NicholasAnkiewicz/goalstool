@@ -103,7 +103,8 @@ function Row(props) {
 }
 
 
-export default function ManagerDashboard(setCurUser, activateModal, users, goals) {
+export default function ManagerDashboard(setCurUser, activateModal, getUsers, user, goals) {
+  const users = getUsers(user);
   return (
     <box style={{width:"100%"}}>
     <br/>

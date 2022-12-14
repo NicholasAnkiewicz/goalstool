@@ -12,7 +12,7 @@ import Card from 'react-bootstrap/Card';
 import { useNavigate } from "react-router-dom";
 import Cookies from 'universal-cookie'
 
-
+let fetching = false;
 function Login() {
   const [show, setShow] = useState(false);
   const [incorrect,setIncorrect] = useState(false);
@@ -24,10 +24,10 @@ function Login() {
   useEffect(() => {
     const user = cookies.get("username")
     const pass = cookies.get("password")
-    if (user && pass){
+    if (user && pass && !fetching){
       fetchUser(user, pass)
     }
-  }, [""]);
+  }, []);
 
   const onFormSubmit = e => {
     e.preventDefault()
@@ -37,6 +37,7 @@ function Login() {
   }
 
   const fetchUser = async (username,password) => {
+    fetching=true;
     const response = await fetch(
       "http://localhost:8000/auth",
       { 
@@ -53,7 +54,7 @@ function Login() {
       cookies.set("password", password, { path: '/', maxAge: 3600});
       response.json().then(d => {
 
-      fetch("http://localhost:8000/employees/"+d.id+"/managed-employees", {
+      fetch("http://localhost:8000/employees/"+d.employee_id_company_id+"/managed-employees", {
       method: "GET",
       headers: { "content-type" : "application/json"},
     }).then( response => response.json()).then( managedUsers => {       
@@ -62,21 +63,8 @@ function Login() {
           method: "GET",
           headers: { "content-type" : "application/json"},
         }).then ( response => response.json()).then ( manager => {
-        cookies.set("userInfo", {user: {
-          firstname: d.first_name,
-          lastname: d.last_name,
-          id: d.id,
-          employee_id: d.employee_id,
-          email: d.email,
-          companyid: d.company_id,
-          companyname: d.company_name,
-          title: d.position_title,
-          mid: d.manager_id,
-          isManager: d.is_manager,
-          goals: d.goals}}, {path: '/', maxAge: 3600})
-        cookies.set("userManager", {
-          managedUsers: managedUsers,
-          manager: manager}, {path: '/', maxAge: 3600})
+        console.log("navigating to dashboard!");
+        console.log(managedUsers);
         navigate('./Dashboard', 
           {state: {
             user: {
@@ -89,7 +77,6 @@ function Login() {
             companyname: d.company_name,
             title: d.position_title,
             mid: d.manager_id,
-            isManager: d.is_manager,
             goals: d.goals
             },
             managedUsers: managedUsers,

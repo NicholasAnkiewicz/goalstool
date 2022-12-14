@@ -1,37 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation, useResolvedPath, resolvePath } from "react-router-dom";
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
-import logo from './ukglogo.jpg';
-import icon from './icon1.png';
-import ManagerDashboard from "./ManagerDashboard.js";
-import CommentCard from './components/CommentCard';
-import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
-import Image from 'react-bootstrap/Image';
-import Navbar from 'react-bootstrap/Navbar';
 import Modal from 'react-bootstrap/Modal';
 import ToggleButton from 'react-bootstrap/ToggleButton';
-import ReviewsIcon from '@mui/icons-material/Reviews';
-import Box from '@mui/material/Box';
-import { darken, lighten } from '@mui/material/styles';
-import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
-import AlertBox from './components/AlertBox.js';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { GridActionsCellItem, GridRowId, GridColumns } from '@mui/x-data-grid';
-import InventoryIcon from '@mui/icons-material/Inventory';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import RunCircleIcon from '@mui/icons-material/RunCircle';
-import StopCircleIcon from '@mui/icons-material/StopCircle';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import Cookies from 'universal-cookie';
+
 
 export default function GoalDetailModal(props) {
     const { row, getCommentsByGoal, changeRow, getEmployee, AddComment, loggedInUser, managedUsers} = props;
@@ -70,8 +49,8 @@ export default function GoalDetailModal(props) {
     const variant = [
       'outline-info', 'outline-success', 'outline-secondary', 'outline-danger'
     ];
-  
-    const createdBy = props.getEmployee(33) // UNCOMMENT WHEN BACKEND HAS CREATEDBY props.getEmployee(row.createdBy); 
+    
+    const createdBy =  props.getEmployee(row.createdBy); 
     const assignedTo = props.getEmployee(row.assignedto);
   
     const onFormSubmit = (e) => {

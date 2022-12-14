@@ -21,5 +21,6 @@ class Goal(Base, BaseModel):
     status = Column(Enum(GoalStatus))
     comments = relationship("Comment")
     start_date = Column(DateTime)    
-    end_date = Column(DateTime, nullable=True)
+    end_date = Column(DateTime)
     created_by = Column(Integer)
+    created_at = Column(DateTime)

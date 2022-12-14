@@ -50,7 +50,9 @@ for file in os.listdir("seeds/employees"):
                     title = fake.text(),
                     description = fake.text(),
                     assignee_id = employee.id, status = choice(list(GoalStatus)),
+                    created_at = datetime.datetime.today(),
                     start_date = datetime.datetime.today(),
+                    end_date = datetime.datetime.today(),
                     created_by = randrange(tot_employees)
                 )
 
@@ -60,8 +62,10 @@ for file in os.listdir("seeds/employees"):
 
                 for j in range(randrange(4)):
                     comment = Comment(
+                        created_at = datetime.datetime.today(),
+                        employee_id = employee.id,
                         description = fake.text(),
-                        goal_id = goal.id
+                        goal_id = goal.id,
                     )
 
                     sess.add(comment)

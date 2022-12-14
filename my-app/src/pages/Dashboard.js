@@ -3,36 +3,20 @@ import { useNavigate, useLocation, useResolvedPath, resolvePath } from "react-ro
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
 import logo from './ukglogo.jpg';
-import icon from './icon1.png';
 import ManagerDashboard from "./ManagerDashboard.js";
-import CommentCard from './components/CommentCard';
-import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Form from 'react-bootstrap/Form';
 import Image from 'react-bootstrap/Image';
 import Navbar from 'react-bootstrap/Navbar';
-import Modal from 'react-bootstrap/Modal';
-import ToggleButton from 'react-bootstrap/ToggleButton';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import Box from '@mui/material/Box';
-import { darken, lighten } from '@mui/material/styles';
-import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import AlertBox from './components/AlertBox.js';
-import ListGroup from 'react-bootstrap/ListGroup';
 import { GridActionsCellItem, GridRowId, GridColumns } from '@mui/x-data-grid';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import RunCircleIcon from '@mui/icons-material/RunCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import Cookies from 'universal-cookie';
-import NewGoalModal from  './NewGoalModal';
 import GoalDetailModal from './GoalDetailModal'
 import EmployeeDashboard from './EmployeeDashboard';
 
@@ -47,21 +31,24 @@ const convertGoalFormat = (goal) => {
     completedate: goal.end_date.split("T")[0], //full datetimes and we just want year-month-day
     status: goal.status,
     createdate: goal.created_at,
-    createdBy: 33, //TODO
+    createdBy: goal.created_by,
     assignedto: goal.assignee_id
   }
 }
 
 
 const convertUserFormat = (user) => {
+  console.log("converting user:", user.id)
   return {
+      companyid: user.company_id,
       firstname: user.first_name,
       lastname: user.last_name,
       id: user.id,
       title: user.position_title,
       email: user.email,
       compid: user.company_id, 
-      mid: user.manager_id, 
+      mid: parseInt(user.manager_id.charAt(0)), 
+
   }
 }
 
@@ -76,7 +63,8 @@ const convertCommentFormat = (comment) => {
 }
 
 const cookies = new Cookies();
-const updateCookie = async (username,password) => {
+const updateFromCookie = async (username,password,setState) => {
+  let out = {};
   const response = await fetch(
     "http://localhost:8000/auth",
     { 
@@ -92,73 +80,82 @@ const updateCookie = async (username,password) => {
     cookies.set("username", username, { path: '/', maxAge: 3600});
     cookies.set("password", password, { path: '/', maxAge: 3600});
     response.json().then(d => {
-    fetch("http://localhost:8000/employees/"+d.id+"/managed-employees", {
-    method: "GET",
-    headers: { "content-type" : "application/json"},
-  }).then( response => response.json()).then( managedUsers => {
-      fetch("http://localhost:8000/employees/"+d.manager_id, {
+      
+      fetch("http://localhost:8000/employees/"+d.employee_id_company_id+"/managed-employees", {
         method: "GET",
         headers: { "content-type" : "application/json"},
-      }).then ( response => response.json()).then ( manager => {
-      cookies.set("userInfo", {user: {
-        firstname: d.first_name,
-        lastname: d.last_name,
-        id: d.id,
-        employee_id: d.employee_id,
-        email: d.email,
-        companyid: d.company_id,
-        companyname: d.company_name,
-        title: d.position_title,
-        mid: d.manager_id,
-        isManager: d.is_manager,
-        goals: d.goals}
-      }, {path: '/', maxAge: 3600})
-      cookies.set("userManager", {
-        managedUsers: managedUsers,
-        manager: manager}, 
-        {path: '/', maxAge: 3600})
-      })});
-    })}};
+      }).then( response => response.json()).then( managedUsers => {
+      
+        fetch("http://localhost:8000/employees/"+d.manager_id, {
+          method: "GET",
+          headers: { "content-type" : "application/json"},
+        }).then ( response => response.json()).then ( manager => {
+          out = {
+            user: {
+              firstname: d.first_name,
+              lastname: d.last_name,
+              id: d.id,
+              employee_id: d.employee_id,
+              email: d.email,
+              companyid: d.company_id,
+              companyname: d.company_name,
+              title: d.position_title,
+              mid: d.manager_id,
+              goals: d.goals},
+            manager: manager,
+            managedUsers: managedUsers,
+            }  
+            setState(out);
+        })
+      })
+    });
+  }
+  
+  
+};
+
+// because our seed has goals created by random employees that we haven't retrieved data on
+// so this grabs all of them so we can show author when they aren't the current manager 
+const fetchUnaccountedForUsers = async (goals, setUsers, users, companyid) => {
+  const usersToGet = goals.reduce( (out,goal,i) => 
+    !users.some(user => user.id === goal.createdBy)&&!out.includes(goal.createdBy)?out.concat(goal.createdBy):out,[] )
+  console.log("UserstoGET ",usersToGet);
+  usersToGet.forEach( userid => 
+    fetch("http://localhost:8000/employees/"+userid+"_"+companyid, {
+      method: "GET",
+      headers: { "content-type" : "application/json"},
+    }).then ( response => response.json())
+      .then ( newUser => {  users.push(convertUserFormat(newUser)) })
+  )
+  return users;
+}
 
 export default function Dashboard() {
-  const cookies = new Cookies();
   const username_cookie = cookies.get('username')
   const password_cookie = cookies.get('password')
-  updateCookie(username_cookie, password_cookie)
-  const userInfo_cookie = cookies.get('userInfo')
-  const userManager_cookie = cookies.get('userManager')
-  var {state} = useLocation();
-  if (userInfo_cookie && userManager_cookie) {
-    var s = {user:{
-      firstname: userInfo_cookie.user.firstname,
-      lastname: userInfo_cookie.user.lastname,
-      id: userInfo_cookie.user.id,
-      employee_id: userInfo_cookie.user.employeeid,
-      email: userInfo_cookie.user.email,
-      companyid: userInfo_cookie.user.companyid,
-      companyname: userInfo_cookie.user.companyname,
-      title: userInfo_cookie.user.positiontitle,
-      mid: userInfo_cookie.user.mid,
-      isManager: userInfo_cookie.user.isManager,
-      goals: userInfo_cookie.user.goals
-    },
-    managedUsers: userManager_cookie.managedUsers,
-    manager: userManager_cookie.manager,
-    }
-    state = s
-  } 
+  let {state} = useLocation();
+
+  // where updateFromCookie will update, made into a state to ensure everything refreshes
+  const [s, setState] = React.useState(state);
+  if (state !== s){
+    state = s;
+  }
+  
 
   const [goals,setGoals] = React.useState([state.user].concat(state.managedUsers)
-    .reduce( (out,user,i) => out.concat(user.goals.map( g => convertGoalFormat(g))),[]));  
+    .reduce( (out,user,i) => out.concat(user.goals.reduce( 
+      (o,g,i) => g.status==="Archived"?o:[convertGoalFormat(g)].concat(o),[])),[]));  
 
   const otherUsers = [state.manager].concat(state.managedUsers);
   const [loggedInUser] = React.useState(state.user);
   const [users,setUsers] = React.useState([state.user].concat(
     otherUsers.map(u=>convertUserFormat(u))));
-
   const [comments,setComments] = React.useState([]);
 
   useEffect(() => {
+    setGoals(goals.filter(g=>g.status!=="Archived"));
+    updateFromCookie(username_cookie, password_cookie, setState).then( out => {state = out;});
+    fetchUnaccountedForUsers(goals,setUsers,users,loggedInUser.companyid).then( setUsers );
     goals.reduce( (out,g,i) => 
     fetch("http://localhost:8000/goals/"+g.id+"/comments", {
       method: "GET",
@@ -170,9 +167,9 @@ export default function Dashboard() {
       else {return out.then( (o) => o.concat( c.map( (comment)=>convertCommentFormat(comment) ) ));}
     })
     ,Promise.resolve([])).then( setComments );
+  console.log(users);
   }, []);
   let totalComments = comments.length;
-
 
   const navigate = useNavigate();
 
@@ -181,6 +178,8 @@ export default function Dashboard() {
   }
   
   const getUserByID = (id) => {
+      //console.log("WOW! :",id,users.filter((user) => user.id===id) )
+    
     return users.filter( (user) => user.id===id)[0];
     
   }
@@ -198,6 +197,7 @@ export default function Dashboard() {
   }
   
   const getGoalsByUser = (id) => {
+    console.log(id,goals.filter( (goal) => goal.assignedto === id));
     return goals.filter( (goal) => goal.assignedto === id);
   }
   
@@ -208,32 +208,7 @@ export default function Dashboard() {
   const [topComments, setTopComments] = React.useState(comments.filter((comment)=>comment.eid !== loggedInUser.id).slice(0,numOfCards));
   const [curGoals, setCurGoals] = React.useState(getGoalsByUser(loggedInUser.id));
   const [selectedGoal, setSelectedGoal] = React.useState(curGoals[0]);
-
-  const UpdateLocalFromServer = () => {
-    //assumes users are not deleted or added and ids are immutable
-    setUsers(
-      users.map( async (user) => 
-        await fetch("http://localhost:8000/employee/"+user.id, {
-          method: "GET",
-          headers: { "content-type" : "application/json"},
-        }).then( (u) => convertUserFormat(u) )
-      )
-    )
-
-    let newGoals = [];
-    users.forEach( async (id) =>
-      await fetch("http://localhost:8000/goals/"+id, {
-        method: "GET",
-        headers: { "content-type" : "application/json"},
-      }).then( (data) => data.map((d)=>newGoals=newGoals.concat(convertGoalFormat(d))) ));
-    setGoals(newGoals);
-
-    // TODO actually do something useful here
-    setComments(comments);
-  }
-
   const [curUser, setCurUser] = React.useState(loggedInUser);
-
   const AddGoal = async (newGoal) => {
     let backendGoal = {
       title: newGoal.title, id: newGoal.id===null?-1:newGoal.id,
@@ -451,11 +426,12 @@ export default function Dashboard() {
     }
   
   ];
-  const handelLogout = () =>{
+  const handleLogout = () =>{
     cookies.remove('username');
     cookies.remove('password');
     cookies.remove('userInfo')
     cookies.remove('userManager')
+    console.log("logging out!")
     navigate('/');
   }
   return (
@@ -482,7 +458,7 @@ export default function Dashboard() {
             <Navbar.Text style={{paddingRight: '3px',cursor: "pointer"}} className="fw-bold navbar-light">
               Signed in as <Button style={{marginRight: '5px'}} className="btn-md"><strong>{loggedInUser.firstname}</strong></Button>
               ID: {loggedInUser.eid}
-            <Button className="m-1" variant="warning" onClick={handelLogout}>Logout</Button>
+            <Button className="m-1" variant="warning" onClick={handleLogout}>Logout</Button>
 
             </Navbar.Text>
           </Navbar.Collapse>
@@ -519,8 +495,8 @@ export default function Dashboard() {
           <br/>
 
           <div>
-          {loggedInUser.isManager ? 
-            ManagerDashboard(SetCurUserAndGoals,activateModal,getManagedUsers(loggedInUser.id),goals) :""}
+          {state.managedUsers.length !== 0 ? 
+            ManagerDashboard(SetCurUserAndGoals,activateModal,getManagedUsers,loggedInUser.id,goals) :""}
           </div>
         </div>
       </div>
